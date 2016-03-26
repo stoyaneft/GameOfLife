@@ -1,0 +1,22 @@
+{
+  "name": "game_of_life",
+  "version": "1.0.0",
+  "description": "John Conway's Game of LIfe",
+  "main": "cli.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stoyaneft/GameOfLife.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stoyaneft/GameOfLife/issues"
+  },
+  "homepage": "https://github.com/stoyaneft/GameOfLife#readme",
+  "dependencies": {
+    "chai": "^3.5.0"
+  }
+}
