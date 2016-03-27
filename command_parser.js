@@ -17,7 +17,10 @@ class CommandParser {
         if (command in this.commands) {
             this.commands[command].apply(null, args);
         } else {
-            throw 'NoSuchCommand';
+            throw {
+                name: 'NoSuchCommand',
+                message: 'Wrong command'
+            };
         }
     }
 }

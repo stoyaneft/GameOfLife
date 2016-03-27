@@ -5,11 +5,7 @@ const Game = require('./game_engine');
 const readline = require('readline');
 
 let game;
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+const rl = readline.createInterface(process.stdin,process.stdout);
 
 function createCommandParser() {
     const parser = new CommandParser();
@@ -18,7 +14,8 @@ function createCommandParser() {
         .addCommand('show', show)
         .addCommand('help', help)
         .addCommand('clear', clear)
-        .addCommand('simulate', simulate);
+        .addCommand('simulate', simulate)
+        .addCommand('close', process.exit);
     return parser;
 }
 
@@ -44,12 +41,14 @@ function show() {
 }
 
 function help() {
-    console.log('Welcome to Game of Life\'s console interface. The available commands are:\n' +
-        '- "new_game" <size> - starts new game with board of size <size>\n' +
-        '- "new_cell" <x> <y> - places new alive cell at [x, y]\n' +
-        '- "show_board" - shows current state of the board\n' +
-        '- "help" - shows list of available commands\n' +
-        '- "clear" - clears game board\n');
+    console.log('Welcome to Game of Life\'s console interface. The available commands are:\n>' +
+        '- "new_game" <size> - starts new game with board of size <size>\n>' +
+        '- "new_cell" <x> <y> - places new alive cell at [x, y]\n>' +
+        '- "show" - shows current state of the board\n>' +
+        '- "help" - shows list of available commands\n>' +
+        '- "clear" - clears game board\n>' +
+        '- "simulate" <days> - simulates game stete for <days>\n>' +
+        '- "close" - closes the game\n>');
 }
 
 function clear() {
@@ -58,35 +57,24 @@ function clear() {
 
 function simulate(days) {
     game.simulate(days);
+    show();
 }
 
-
 function prompt(parser) {
-    rl.setPrompt('>');
     rl.prompt();
     help();
 
     rl.on('line', line => {
         try {
             parser.execute(line);
-        } catch(e) {
-            console.log('Wrong command! Use "help" to see list of available commands');
+        } catch (e) {
+            if (e.name === 'NoSuchCommand') {
+                console.log(e.message + ' Use "help" to see list of available commands');
+            } else {
+                throw e;
+            }
         }
-
-
     });
-    // rl.question('Welcome to Game of Life\'s console interface. The available commands are:\n' +
-    //     '- "new_game" <size> - starts new game with board of size <size>\n' +
-    //     '- "new_cell" <x> <y> - places new alive cell at [x, y]\n' +
-    //     '- "show_board" - shows current state of the board', (command) => {
-    //
-    //     rl.pause();
-    // });
-
-    // catch(e) {
-    //     console.log('Wrong command!');
-    //     prompt();
-    // }
 }
 
 function startGame() {
