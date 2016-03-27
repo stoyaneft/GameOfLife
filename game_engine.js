@@ -1,44 +1,60 @@
 'use strict';
 
-function Game(size) {
-    let daysPassed = 0;
-    size = size | 20;
-    let board = getNewBoard();
+class Game {
 
-    this.clear = function() {
-       board = getNewBoard();
-    };
-
-    this.placeAt = function (x, y) {
-        board[x][y] = 1;
-        return this;
-    };
-    this.clear();
-
-    function getNewBoard() {
-        const row = Array.apply(null, new Array(size)).map(_ => 0);
-        return Array.apply(null, new Array(size)).map(_ => row);
+    constructor(size) {
+        this.size = size | 20;
+        this._daysPassed = 0;
+        this._board = this.getNewBoard();
     }
 
-    this.getBoard = function () {
+    clear() {
+       this._board = this.getNewBoard();
+    }
+
+    inBoard(x, y) {
+        return x >= 0 && x < this.size && y >= 0 && y < this.size;
+    }
+
+    placeAt(x, y) {
+        if (this.inBoard(x, y)) {
+            this._board[x][y] = 1;            
+        } else {
+            throw Error('Cell placed outside board');
+        }
+        return this;
+    }
+
+    getNewBoard() {
+        let board = Array.apply(null, new Array(this.size)).map(_ => {
+            var row = Array.apply(null, new Array(this.size));
+            return row.map(x => 0);
+        });
         return board;
+    }
+
+    getBoard() {
+        return this._board;
     };
 
-
-    function calcNextState(x, y) {
+    neighboursOf(x, y) {
         const DX = [-1, -1, -1, 0, 0, 1, 1, 1];
         const DY = [-1, 0, 1, -1, 1, -1, 0, 1];
         let neighCount = 0;
         for (let i = 0; i < 8; i++) {
             const newX =  x + DX[i];
             const newY = y + DY[i];
-            if (newX >= 0 && newX < size &&
-                newY >= 0 && newY < size && board[newX][newY] === 1) {
+            if (this.inBoard(newX, newY) && this._board[newX][newY] === 1) {
                 neighCount++;
             }
         }
+        return neighCount;
+    }
+
+    calcNextState(x, y) {
+        const neighCount = this.neighboursOf(x, y);
         let state = 0;
-        if (board[x][y] === 1) {
+        if (this._board[x][y] === 1) {
             if (neighCount === 2 || neighCount === 3) {
                 state = 1;
             }
@@ -50,31 +66,44 @@ function Game(size) {
         return state;
     }
 
-    function calcNextBoard() {
-        let nextBoard = getNewBoard();
+    calcNextBoard() {
+        let nextBoard = this.getNewBoard();
         nextBoard.forEach((row, i) => {
             row.forEach((_, j) => {
-                nextBoard[i][j] = calcNextState(i, j);
+                nextBoard[i][j] = this.calcNextState(i, j);
             })
         });
         return nextBoard;
     }
+    
+    loadFigure(name, x, y) {
+        const figures = require('./figures.json');
+        const figure = figures[name];
+        figure.forEach((row, i) => {
+           row.forEach((cell, j) => {
+               this._board[x+i][y+j] = cell;
+           }) ;
+        });
+    };
 
-    this.simulate = function (days) {
+    simulate(days) {
         days = days | 1;
         for (let i = 0; i < days; i++) {
-            board = calcNextBoard();
+            this._board = this.calcNextBoard();
         }
+        this._daysPassed += days;
     };
 }
-
-let game = new Game();
-let board = game.getBoard();
-console.log(board);
-game.placeAt(3, 4)
-    .placeAt(3, 5)
-    .placeAt(4, 4);
-
-game.simulate(5);
-
+//
+// let game = new Game();
+// game.placeAt(0, 21);
+// game.loadFigure('smallExploder',1, 1);
+//  let _board = game.getBoard();
+//  console.log(_board);
+// game.placeAt(3, 4)
+//     .placeAt(3, 5)
+//     .placeAt(4, 4);
+//
+// game.simulate(5);
+//
 module.exports = Game;
