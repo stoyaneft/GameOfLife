@@ -8,7 +8,7 @@ class Game {
         this._board = this.getNewBoard();
     }
 
-    clear() {
+    restart() {
        this._board = this.getNewBoard();
     }
 
@@ -94,16 +94,5 @@ class Game {
         this._daysPassed += days;
     };
 }
-//
-// let game = new Game();
-// game.placeAt(0, 21);
-// game.loadFigure('smallExploder',1, 1);
-//  let _board = game.getBoard();
-//  console.log(_board);
-// game.placeAt(3, 4)
-//     .placeAt(3, 5)
-//     .placeAt(4, 4);
-//
-// game.simulate(5);
-//
+
 module.exports = Game;

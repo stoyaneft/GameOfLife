@@ -15,24 +15,32 @@ function createCommandParser() {
     const parser = new CommandParser();
     parser.addCommand('new_game', newGame)
         .addCommand('new_cell', newCell)
-        .addCommand('show_board', showBoard)
+        .addCommand('show', show)
         .addCommand('help', help)
-        .addCommand('clear', clear);
+        .addCommand('clear', clear)
+        .addCommand('simulate', simulate);
     return parser;
 }
 
 function newGame(size) {
     game = new Game(parseInt(size));
-    const board = game.getBoard();
-    printBoard();
+    show();
 }
 
 function newCell(x, y) {
     game.placeAt(x, y);
 }
 
-function showBoard() {
-    printBoard();
+function show() {
+    console.log('Days passed: ' + game._daysPassed);
+    const symbols = ['O', '*'];
+    const board = game.getBoard();
+    const boardStr = board.map(row => {
+        row = row.map(cell => symbols[cell]);
+        row = row.join(' ');
+        return row;
+    });
+    console.log(boardStr.join('\n'));
 }
 
 function help() {
@@ -48,15 +56,8 @@ function clear() {
     game.clear();
 }
 
-function printBoard() {
-    const symbols = ['O', '*'];
-    const board = game.getBoard();
-    const boardStr = board.map(row => {
-        row = row.map(cell => symbols[cell]);
-        row = row.join(' ');
-        return row;
-    });
-    console.log(boardStr.join('\n'));
+function simulate(days) {
+    game.simulate(days);
 }
 
 

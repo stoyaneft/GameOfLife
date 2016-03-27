@@ -85,6 +85,7 @@ describe('Game', () => {
            expectedBoard[x][y+2] = 0;
            expectedBoard[x][y+7] = 0;
            expect(game.getBoard()).to.eql(expectedBoard);
+           expect(game._daysPassed).to.equal(61);
        });
     });
 });
