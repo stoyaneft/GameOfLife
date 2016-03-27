@@ -3,7 +3,7 @@
 class Game {
 
     constructor(size) {
-        this.size = size | 20;
+        this.size = size || 20;
         this._daysPassed = 0;
         this._board = this.getNewBoard();
     }

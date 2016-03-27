@@ -1,20 +1,22 @@
+'use strict';
+
 class CommandParser {
 
     constructor() {
         this.commands = {};
     }
 
-    add_command(command, func) {
+    addCommand(command, func) {
         this.commands[command] = func;
     }
 
     execute(line) {
-        let command = line[0];
-        let args = [].slice.call(arguments, 1);
+        let command = line.split(' ')[0];
+        let args = line.split(' ').slice(1);
         if (command in this.commands) {
             this.commands[command].apply(null, args);
         } else {
-            throw 'NotSuchCommand';
+            throw 'NoSuchCommand';
         }
     }
 }
