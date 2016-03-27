@@ -8,15 +8,16 @@ let game;
 
 const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout,
-    prompt: '>',
-    preserveCursor: true
+    output: process.stdout
 });
 
 function createCommandParser() {
     const parser = new CommandParser();
-    parser.addCommand('new_game', newGame);
-    console.log(parser.commands);
+    parser.addCommand('new_game', newGame)
+        .addCommand('new_cell', newCell)
+        .addCommand('show_board', showBoard)
+        .addCommand('help', help)
+        .addCommand('clear', clear);
     return parser;
 }
 
@@ -24,6 +25,27 @@ function newGame(size) {
     game = new Game(parseInt(size));
     const board = game.getBoard();
     printBoard();
+}
+
+function newCell(x, y) {
+    game.placeAt(x, y);
+}
+
+function showBoard() {
+    printBoard();
+}
+
+function help() {
+    console.log('Welcome to Game of Life\'s console interface. The available commands are:\n' +
+        '- "new_game" <size> - starts new game with board of size <size>\n' +
+        '- "new_cell" <x> <y> - places new alive cell at [x, y]\n' +
+        '- "show_board" - shows current state of the board\n' +
+        '- "help" - shows list of available commands\n' +
+        '- "clear" - clears game board\n');
+}
+
+function clear() {
+    game.clear();
 }
 
 function printBoard() {
@@ -37,11 +59,28 @@ function printBoard() {
     console.log(boardStr.join('\n'));
 }
 
+
 function prompt(parser) {
-    rl.question('Welcome to Game of Life\'s console interface. The available commands are:\n' +
-        '- "new_game" <size> - starts new game with board of size <size>', (command) => {
-        parser.execute(command);
+    rl.setPrompt('>');
+    rl.prompt();
+    help();
+
+    rl.on('line', line => {
+        try {
+            parser.execute(line);
+        } catch(e) {
+            console.log('Wrong command! Use "help" to see list of available commands');
+        }
+
+
     });
+    // rl.question('Welcome to Game of Life\'s console interface. The available commands are:\n' +
+    //     '- "new_game" <size> - starts new game with board of size <size>\n' +
+    //     '- "new_cell" <x> <y> - places new alive cell at [x, y]\n' +
+    //     '- "show_board" - shows current state of the board', (command) => {
+    //
+    //     rl.pause();
+    // });
 
     // catch(e) {
     //     console.log('Wrong command!');

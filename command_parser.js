@@ -8,6 +8,7 @@ class CommandParser {
 
     addCommand(command, func) {
         this.commands[command] = func;
+        return this;
     }
 
     execute(line) {
