@@ -52,7 +52,7 @@ function help() {
 }
 
 function clear() {
-    game.clear();
+    game.restart();
 }
 
 function simulate(days) {
