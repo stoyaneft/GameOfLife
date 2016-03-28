@@ -9,7 +9,8 @@ class Game {
     }
 
     restart() {
-       this._board = this.getNewBoard();
+        this._daysPassed = 0;
+        this._board = this.getNewBoard();
     }
 
     inBoard(x, y) {
@@ -76,10 +77,10 @@ class Game {
         return nextBoard;
     }
     
-    loadFigure(name, x, y) {
-        const figures = require('./figures.json');
-        const figure = figures[name];
-        figure.forEach((row, i) => {
+    loadShape(name, x, y) {
+        const shapes = require('./shapes.json');
+        const shape = shapes[name];
+        shape.forEach((row, i) => {
            row.forEach((cell, j) => {
                this._board[x+i][y+j] = cell;
            }) ;
