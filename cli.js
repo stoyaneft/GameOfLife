@@ -2,15 +2,15 @@
 
 const CommandParser = require('./command_parser');
 const Game = require('./game_engine');
-const readline = require('readline');
+const readLine = require('readline');
 
 let game;
-const rl = readline.createInterface(process.stdin,process.stdout);
+const rl = readLine.createInterface(process.stdin,process.stdout);
 
 function createCommandParser() {
     const parser = new CommandParser();
-    parser.addCommand('new_game', newGame)
-        .addCommand('new_cell', newCell)
+    parser.addCommand('new', newGame)
+        .addCommand('cell', newCell)
         .addCommand('show', show)
         .addCommand('help', help)
         .addCommand('clear', clear)
@@ -42,8 +42,8 @@ function show() {
 
 function help() {
     console.log('Welcome to Game of Life\'s console interface. The available commands are:\n>' +
-        '- "new_game" <size> - starts new game with board of size <size>\n>' +
-        '- "new_cell" <x> <y> - places new alive cell at [x, y]\n>' +
+        '- "new" <size> - starts new game with board of size <size>\n>' +
+        '- "cell" <x> <y> - places new alive cell at [x, y]\n>' +
         '- "show" - shows current state of the board\n>' +
         '- "help" - shows list of available commands\n>' +
         '- "clear" - clears game board\n>' +
