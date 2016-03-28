@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Game of Life</title>
+</head>
+<body>
+    <h1>Game of Life</h1>
+    <p>The Game of Life is not your typical computer game. It is a 'cellular automaton', and was invented by Cambridge
+        mathematician John Conway.</p>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <form>
+        <select id="shapes" onchange="loadShape(this.value)">
+            <option>Clear</option>
+            <option>Glider</option>
+            <option>Small Exploder</option>
+            <option>10 Cell Row</option>
+        </select>
+        <button onclick="simulate(1)">Next</button>
+    </form>
+
+    <!--<script src="./src/game.js" type="text/javascript"></script>-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        const canvas = document.getElementById('gameCanvas').getContext('2d');
+        const shapes = document.getElementById('shapes');
+        console.log(shapes);
+
+        canvas.strokeStyle = 'black';
+        canvas.fillStyle = 'blue';
+
+        function setEventHandlers() {
+            socket.on('boardChanged', onBoardChanged);
+        }
+
+        function onBoardChanged(board) {
+            draw(board);
+            console.log('Board changed');
+        }
+
+        function draw(board) {
+            canvas.clearRect(0, 0, 600, 600);
+            board.forEach(function(row, x) {
+                row.forEach(function(cell, y) {
+                    canvas.beginPath();
+                    canvas.rect(y*20, x*20, 20, 20);
+                    if (cell) {
+                        canvas.fill();
+                    } else {
+                        canvas.stroke();
+                    }
+                });
+            });
+        }
+
+        function loadShape(shape) {
+            socket.emit('loadShape', shape);
+        }
+
+        function simulate(days) {
+            socket.emit('simulate');
+        }
+
+        setEventHandlers();
+    </script>
+</body>
+</html>
