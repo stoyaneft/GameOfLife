@@ -50,8 +50,19 @@ function onLoadShape(name) {
 }
 
 function onSimulate(days) {
-    game.simulate(days);
-    io.emit('boardChanged', game.getBoard());
+    if (days === 1) {
+        game.simulate(days);
+        io.emit('boardChanged', game.getBoard());
+    } else if(days > 1) {
+        const intId = setInterval(() => {
+            game.simulate(1);
+            io.emit('boardChanged', game.getBoard());
+            days--;
+            if (days === 0) {
+                clearInterval(intId);
+            }
+        }, 200);
+    }
 }
 
 server.listen(8000, function(){
