@@ -3,7 +3,7 @@ const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const Game = require('./game_engine');
 
-const game = new Game();
+const game = new Game(50);
 const SHAPES = {
     'Glider': 'glider',
     '10 Cell Row': 'tenCellRow',
@@ -49,19 +49,20 @@ function onLoadShape(name) {
     }
 }
 
-function onSimulate(days) {
-    if (days === 1) {
-        game.simulate(days);
+function onSimulate(data) {
+    console.log(data);
+    if (data.days === 1) {
+        game.simulate(data.days);
         io.emit('boardChanged', game.getBoard());
-    } else if(days > 1) {
+    } else if(data.days > 1) {
         const intId = setInterval(() => {
             game.simulate(1);
             io.emit('boardChanged', game.getBoard());
-            days--;
-            if (days === 0) {
+            data.days--;
+            if (data.days === 0) {
                 clearInterval(intId);
             }
-        }, 200);
+        }, Math.floor(1000/data.speed));
     }
 }
 
