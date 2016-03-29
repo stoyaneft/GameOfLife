@@ -28,7 +28,7 @@ class Game {
 
     getNewBoard() {
         let board = Array.apply(null, new Array(this.size)).map(_ => {
-            var row = Array.apply(null, new Array(this.size));
+            let row = Array.apply(null, new Array(this.size));
             return row.map(x => 0);
         });
         return board;
