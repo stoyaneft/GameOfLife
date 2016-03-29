@@ -40,8 +40,8 @@ function onLoadShape(name) {
     if (name !== 'Clear') {
         game.loadShape(SHAPES[name], game.size/2, game.size/2);
         console.log('Shape ' + name + ' loaded');
-        io.emit('boardChanged', game.getBoard());
     }
+    io.emit('boardChanged', game.getBoard());
 }
 
 function onSimulate(data) {
@@ -62,8 +62,13 @@ function onSimulate(data) {
 }
 
 function onNewCell(data) {
+    const x = data.x, y = data.y;
     console.log('New cell at ' + data.x + ' ' + data.y);
-    game.placeAt(data.x, data.y);
+    if (game.isAlive(x, y)) {
+        game.removeAt(x, y);
+    } else {
+        game.placeAt(x, y);
+    }
     io.emit('boardChanged', game.getBoard());
 }
 

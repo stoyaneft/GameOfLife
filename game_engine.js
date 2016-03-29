@@ -21,9 +21,26 @@ class Game {
         if (this.inBoard(x, y)) {
             this._board[x][y] = 1;            
         } else {
-            throw Error('Cell placed outside board');
+            throw Error('CellOutsideBoard');
         }
         return this;
+    }
+    
+    removeAt(x, y) {
+        if (this.inBoard(x, y)) {
+            this._board[x][y] = 0;
+        } else {
+            throw Error('CellOutsideBoard');
+        }
+        return this;
+    }
+    
+    isAlive(x, y) {
+        if (this.inBoard(x, y)) {
+            return this._board[x][y];
+        } else {
+            throw Error('CellOutsideBoard');
+        }
     }
 
     getNewBoard() {
