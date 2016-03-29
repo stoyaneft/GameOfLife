@@ -20,9 +20,9 @@ function onSocketConnection(client) {
     console.log('client connected');
     client.on('disconnect', onClientDisconnect);
     client.on('newPlayer', onNewPlayer);
-    client.on('boardChanged', onBoardChanged);
     client.on('loadShape', onLoadShape);
     client.on('simulate', onSimulate);
+    client.on('newCell', onNewCell);
     this.emit('boardChanged', game.getBoard());
 }
 
@@ -33,11 +33,6 @@ function onClientDisconnect() {
 function onNewPlayer() {
     console.log('New player in server');
     this.emit('boardChanged', game.getBoard());
-}
-
-function onBoardChanged(data) {
-    console.log('Board changed');
-    this.broadcast.emit('boardChanged', data);
 }
 
 function onLoadShape(name) {
@@ -64,6 +59,12 @@ function onSimulate(data) {
             }
         }, Math.floor(1000/data.speed));
     }
+}
+
+function onNewCell(data) {
+    console.log('New cell at ' + data.x + ' ' + data.y);
+    game.placeAt(data.x, data.y);
+    io.emit('boardChanged', game.getBoard());
 }
 
 server.listen(8000, function(){

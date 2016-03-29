@@ -26,11 +26,13 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         var socket = io();
-        const canvas = document.getElementById('gameCanvas').getContext('2d');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        canvas.strokeStyle = 'black';
-        canvas.fillStyle = 'blue';
-        //canvas.addEventListener('click', )
+        ctx.strokeStyle = 'black';
+        ctx.fillStyle = 'blue';
+        const sqrSize = 20;
+        canvas.addEventListener('click', onMouseClick, false);
 
         function setEventHandlers() {
             socket.on('boardChanged', onBoardChanged);
@@ -43,15 +45,15 @@
 
         function draw(board) {
 
-            canvas.clearRect(0, 0, 600, 600);
+            ctx.clearRect(0, 0, 600, 600);
             board.forEach(function(row, x) {
                 row.forEach(function(cell, y) {
-                    canvas.beginPath();
-                    canvas.rect(y*20, x*20, 20, 20);
+                    ctx.beginPath();
+                    ctx.rect(y*sqrSize, x*sqrSize, sqrSize, sqrSize);
                     if (cell) {
-                        canvas.fill();
+                        ctx.fill();
                     } else {
-                        canvas.stroke();
+                        ctx.stroke();
                     }
                 });
             });
@@ -67,6 +69,13 @@
             socket.emit('simulate', {days, speed});
         }
 
+        function onMouseClick(event) {
+            const rect = canvas.getBoundingClientRect();
+            const y = Math.floor((event.clientX - rect.left) / sqrSize);
+            const x = Math.floor((event.clientY - rect.top) / sqrSize);
+            console.log(x, y);
+            socket.emit('newCell', {x, y});
+        }
         setEventHandlers();
     </script>
 </body>
