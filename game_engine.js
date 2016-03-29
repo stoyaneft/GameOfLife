@@ -1,5 +1,7 @@
 'use strict';
 
+const shapes = require('./shapes.json');
+
 class Game {
 
     constructor(size) {
@@ -95,7 +97,6 @@ class Game {
     }
     
     loadShape(name, x, y) {
-        const shapes = require('./shapes.json');
         const shape = shapes[name];
         shape.forEach((row, i) => {
            row.forEach((cell, j) => {

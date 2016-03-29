@@ -7,7 +7,9 @@ const game = new Game(50);
 const SHAPES = {
     'Glider': 'glider',
     '10 Cell Row': 'tenCellRow',
-    'Small Exploder': 'smallExploder'
+    'Small Exploder': 'smallExploder',
+    'Exploder': 'exploder',
+    'Pulsar': 'pulsar'
 };
 game.loadShape('glider', 1, 1);
 app.get('/', (req, res) =>{
@@ -21,6 +23,7 @@ function onSocketConnection(client) {
     client.on('disconnect', onClientDisconnect);
     client.on('newPlayer', onNewPlayer);
     client.on('loadShape', onLoadShape);
+    client.on('clear', onClear);
     client.on('simulate', onSimulate);
     client.on('newCell', onNewCell);
     this.emit('boardChanged', game.getBoard());
@@ -37,10 +40,18 @@ function onNewPlayer() {
 
 function onLoadShape(name) {
     game.restart();
-    if (name !== 'Clear') {
-        game.loadShape(SHAPES[name], game.size/2, game.size/2);
-        console.log('Shape ' + name + ' loaded');
-    }
+    const words = name.split(' ');
+    words[0] = words[0].toLowerCase();
+    const shape = words.join('');
+    console.log(shape);
+    game.loadShape(shape, game.size/2, game.size/2);
+    console.log('Shape ' + name + ' loaded');
+    io.emit('boardChanged', game.getBoard());
+}
+
+function onClear() {
+    game.restart();
+    console.log('board cleared');
     io.emit('boardChanged', game.getBoard());
 }
 
