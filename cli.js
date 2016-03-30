@@ -37,7 +37,7 @@ function newCell(x, y) {
 function show() {
     console.log('Days passed: ' + game.generations);
     const symbols = ['O', '*'];
-    const board = game.getBoard();
+    const board = game.board;
     const boardStr = board.map(row => {
         row = row.map(cell => symbols[cell]);
         row = row.join(' ');

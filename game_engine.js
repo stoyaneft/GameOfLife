@@ -5,10 +5,27 @@ const shapes = require('./shapes.json');
 class Game {
 
     constructor(size) {
-        this.size = size || 20;
-        this.generations = 0;
+        this._size = size || 20;
+        this._generation = 0;
+        this._population = 0;
         this._board = this.getNewBoard();
     }
+
+    get size() {
+        return this._size;
+    }
+
+    get generation() {
+        return this._generation;
+    }
+    
+    get population() {
+        return this._population;
+    }
+
+    get board() {
+        return this._board;
+    };
 
     restart() {
         this.generations = 0;
@@ -53,10 +70,6 @@ class Game {
         return board;
     }
 
-    getBoard() {
-        return this._board;
-    };
-
     getNeighboursOf(x, y) {
         const DX = [-1, -1, -1, 0, 0, 1, 1, 1];
         const DY = [-1, 0, 1, -1, 1, -1, 0, 1];
@@ -77,10 +90,13 @@ class Game {
         if (this._board[x][y] === 1) {
             if (neighCount === 2 || neighCount === 3) {
                 state = 1;
+            } else {
+                this._population--;
             }
         } else {
             if (neighCount === 3) {
                 state = 1;
+                this._population++;
             }
         }
         return state;
@@ -101,6 +117,9 @@ class Game {
         shape.forEach((row, i) => {
            row.forEach((cell, j) => {
                this._board[x+i][y+j] = cell;
+               if (cell) {
+                   this._population++;
+               }
            }) ;
         });
     };
@@ -110,7 +129,7 @@ class Game {
         for (let i = 0; i < days; i++) {
             this._board = this._calcNextBoard();
         }
-        this.generations += days;
+        this._generation += days;
     };
 }
 

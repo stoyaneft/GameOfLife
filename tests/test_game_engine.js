@@ -16,7 +16,7 @@ describe('Game', () => {
     describe('#placeAt(x, y)', () => {
         it('should place a living cell at [x, y]', () => {
             game.placeAt(3, 4);
-            const board = game.getBoard();
+            const board = game.board;
             const expected = game.getNewBoard();
             expected[3][4] = 1;
             expect(board).to.eql(expected);
@@ -86,8 +86,9 @@ describe('Game', () => {
            });
            expectedBoard[x][y+2] = 0;
            expectedBoard[x][y+7] = 0;
-           expect(game.getBoard()).to.eql(expectedBoard);
-           expect(game.generations).to.equal(61);
+           expect(game.board).to.eql(expectedBoard);
+           expect(game.generation).to.equal(61);
+           expect(game.population).to.equal(22);
        });
     });
 });

@@ -27,7 +27,7 @@ function onSocketConnection(client) {
     client.on('simulate', onSimulate);
     client.on('cellChanged', onCellChanged);
     client.on('simulationStopped', onSimulationStopped);
-    this.emit('boardChanged', game.getBoard());
+    this.emit('boardChanged', game.board);
 }
 
 function onClientDisconnect() {
@@ -42,25 +42,25 @@ function onLoadShape(name) {
     console.log(shape);
     game.loadShape(shape, game.size/2, game.size/2);
     console.log('Shape ' + name + ' loaded');
-    io.emit('boardChanged', game.getBoard());
+    io.emit('boardChanged', game.board);
 }
 
 function onClear() {
     game.restart();
     console.log('board cleared');
-    io.emit('boardChanged', game.getBoard());
+    io.emit('boardChanged', game.board);
 }
 
 function onSimulate(data) {
     console.log(data);
     if (data.days === 1) {
         game.simulate(data.days);
-        io.emit('boardChanged', game.getBoard());
+        io.emit('boardChanged', game.board);
     } else if(data.days > 1) {
         io.emit('simulationStarted');
         intID = setInterval(() => {
             game.simulate(1);
-            io.emit('boardChanged', game.getBoard());
+            io.emit('boardChanged', game.board);
             data.days--;
             if (data.days === 0) {
                 clearInterval(intID);
@@ -79,7 +79,7 @@ function onCellChanged(data) {
         } else {
             game.placeAt(x, y);
         }
-        io.emit('boardChanged', game.getBoard());
+        io.emit('boardChanged', game.board);
     }
 }
 
