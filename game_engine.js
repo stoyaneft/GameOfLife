@@ -6,12 +6,12 @@ class Game {
 
     constructor(size) {
         this.size = size || 20;
-        this._daysPassed = 0;
+        this.generations = 0;
         this._board = this.getNewBoard();
     }
 
     restart() {
-        this._daysPassed = 0;
+        this.generations = 0;
         this._board = this.getNewBoard();
     }
 
@@ -57,7 +57,7 @@ class Game {
         return this._board;
     };
 
-    neighboursOf(x, y) {
+    getNeighboursOf(x, y) {
         const DX = [-1, -1, -1, 0, 0, 1, 1, 1];
         const DY = [-1, 0, 1, -1, 1, -1, 0, 1];
         let neighCount = 0;
@@ -71,8 +71,8 @@ class Game {
         return neighCount;
     }
 
-    calcNextState(x, y) {
-        const neighCount = this.neighboursOf(x, y);
+    _calcNextState(x, y) {
+        const neighCount = this.getNeighboursOf(x, y);
         let state = 0;
         if (this._board[x][y] === 1) {
             if (neighCount === 2 || neighCount === 3) {
@@ -86,11 +86,11 @@ class Game {
         return state;
     }
 
-    calcNextBoard() {
+    _calcNextBoard() {
         let nextBoard = this.getNewBoard();
         nextBoard.forEach((row, i) => {
             row.forEach((_, j) => {
-                nextBoard[i][j] = this.calcNextState(i, j);
+                nextBoard[i][j] = this._calcNextState(i, j);
             })
         });
         return nextBoard;
@@ -108,9 +108,9 @@ class Game {
     simulate(days) {
         days = days | 1;
         for (let i = 0; i < days; i++) {
-            this._board = this.calcNextBoard();
+            this._board = this._calcNextBoard();
         }
-        this._daysPassed += days;
+        this.generations += days;
     };
 }
 

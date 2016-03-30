@@ -32,35 +32,35 @@ describe('Game', () => {
        })
     });
 
-    describe('#neighboursOf(x, y)', () => {
+    describe('#getNeighboursOf(x, y)', () => {
         it('should calculate neighbours of cell [x, y]', () => {
             game.loadShape('smallExploder', 0, 0);
-            const n1 = game.neighboursOf(0, 0);
+            const n1 = game.getNeighboursOf(0, 0);
             expect(n1).to.equal(3);
-            const n2 = game.neighboursOf(1, 1);
+            const n2 = game.getNeighboursOf(1, 1);
             expect(n2).to.equal(5);
-            const n3 = game.neighboursOf(game.size -1 , game.size-1);
+            const n3 = game.getNeighboursOf(game.size -1 , game.size-1);
             expect(n3).to.equal(0);
         })
     });
 
-    describe('#calcNextState(x, y)', () => {
+    describe('#_calcNextState(x, y)', () => {
         it('should calculate next state for cell [x, y]', () => {
             const x = game.size/2, y = game.size / 2 - 5;
             game.loadShape('tenCellRow', x, y);
-            const first = game.calcNextState(x, y);
-            const second = game.calcNextState(x, y + 1);
+            const first = game._calcNextState(x, y);
+            const second = game._calcNextState(x, y + 1);
             expect(first).to.equal(0);
             expect(second).to.equal(1);
         })
     });
 
-    describe('#calcNextBoard()', () => {
+    describe('#_calcNextBoard()', () => {
         it('should calculate board state after one day', () => {
             const x = game.size/2, y = game.size / 2 - 5;
             game.loadShape('tenCellRow', x, y);
 
-            const nextBoard = game.calcNextBoard();
+            const nextBoard = game._calcNextBoard();
             let expectedBoard = game.getNewBoard();
             expectedBoard.forEach((row, i) => {
                 row.forEach((cell, j) => {
@@ -87,7 +87,7 @@ describe('Game', () => {
            expectedBoard[x][y+2] = 0;
            expectedBoard[x][y+7] = 0;
            expect(game.getBoard()).to.eql(expectedBoard);
-           expect(game._daysPassed).to.equal(61);
+           expect(game.generations).to.equal(61);
        });
     });
 });

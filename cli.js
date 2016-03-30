@@ -35,7 +35,7 @@ function newCell(x, y) {
 }
 
 function show() {
-    console.log('Days passed: ' + game._daysPassed);
+    console.log('Days passed: ' + game.generations);
     const symbols = ['O', '*'];
     const board = game.getBoard();
     const boardStr = board.map(row => {
