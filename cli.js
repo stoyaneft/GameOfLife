@@ -25,7 +25,13 @@ function newGame(size) {
 }
 
 function newCell(x, y) {
-    game.placeAt(x, y);
+    try {
+        game.placeAt(x, y);
+    } catch(e) {
+        if (e.message === 'CellOutsideBoard') {
+            console.log('Cell outside board! Try again!');
+        }
+    }
 }
 
 function show() {
@@ -68,8 +74,9 @@ function prompt(parser) {
         try {
             parser.execute(line);
         } catch (e) {
-            if (e.name === 'NoSuchCommand') {
-                console.log(e.message + ' Use "help" to see list of available commands');
+            console.log(e.message);
+            if (e.message.startsWith('Wrong command')) {
+                console.log('Use "help" to see list of available commands');
             } else {
                 throw e;
             }

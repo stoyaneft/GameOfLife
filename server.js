@@ -1,17 +1,15 @@
-const app = require('express')();
+const express = require('express');
+const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const Game = require('./game_engine');
 
 const game = new Game(50);
-const SHAPES = {
-    'Glider': 'glider',
-    '10 Cell Row': 'tenCellRow',
-    'Small Exploder': 'smallExploder',
-    'Exploder': 'exploder',
-    'Pulsar': 'pulsar'
-};
+
 game.loadShape('glider', 1, 1);
+
+app.use(express.static('public'));
+
 app.get('/', (req, res) =>{
     res.sendFile(__dirname + '/public/index.html');
 });
@@ -21,21 +19,15 @@ io.on('connection', onSocketConnection);
 function onSocketConnection(client) {
     console.log('client connected');
     client.on('disconnect', onClientDisconnect);
-    client.on('newPlayer', onNewPlayer);
     client.on('loadShape', onLoadShape);
     client.on('clear', onClear);
     client.on('simulate', onSimulate);
-    client.on('newCell', onNewCell);
+    client.on('cellChanged', onCellChanged);
     this.emit('boardChanged', game.getBoard());
 }
 
 function onClientDisconnect() {
     console.log('Player has disconnected');
-}
-
-function onNewPlayer() {
-    console.log('New player in server');
-    this.emit('boardChanged', game.getBoard());
 }
 
 function onLoadShape(name) {
@@ -72,15 +64,17 @@ function onSimulate(data) {
     }
 }
 
-function onNewCell(data) {
+function onCellChanged(data) {
     const x = data.x, y = data.y;
-    console.log('New cell at ' + data.x + ' ' + data.y);
-    if (game.isAlive(x, y)) {
-        game.removeAt(x, y);
-    } else {
-        game.placeAt(x, y);
+    if (game.inBoard(x, y)) {
+        console.log('Cell changed at ' + data.x + ' ' + data.y);
+        if (game.isAlive(x, y)) {
+            game.removeAt(x, y);
+        } else {
+            game.placeAt(x, y);
+        }
+        io.emit('boardChanged', game.getBoard());
     }
-    io.emit('boardChanged', game.getBoard());
 }
 
 server.listen(8000, function(){
