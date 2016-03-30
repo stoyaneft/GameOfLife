@@ -6,28 +6,13 @@ const board = [];
 ctx.strokeStyle = 'black';
 ctx.fillStyle = 'blue';
 const sqrSize = 20;
+
 canvas.addEventListener('click', onMouseClick, false);
-//////////////////////////////////////////////////////////////////
-//        var scaleFactor = 1.1;
-//        var lastX=canvas.width/2, lastY=canvas.height/2;
-//        var zoom = function(){
-//            ctx.translate(lastX,lastY);
-//            ctx.scale(1.5,1.5);
-//            ctx.translate(-lastX,-lastY);
-//            draw(board);
-//        };
-//
-//        var handleScroll = function(evt){
-//            console.log('Scrolled');
-//            var delta = evt.wheelDelta ? evt.wheelDelta/40 : evt.detail ? -evt.detail : 0;
-//            if (delta) zoom();
-//            return evt.preventDefault() && false;
-//        };
-//        canvas.addEventListener('DOMMouseScroll',handleScroll,false);
-//        canvas.addEventListener('mousewheel',handleScroll,false);
 
 function setEventHandlers() {
     socket.on('boardChanged', onBoardChanged);
+    socket.on('simulationFinished', onSimulationFinished);
+    socket.on('simulationStarted', onSimulationStarted);
 }
 
 function onBoardChanged(board) {
@@ -71,6 +56,18 @@ function onMouseClick(event) {
     const x = Math.floor((event.clientY - rect.top) / sqrSize);
     console.log(x, y);
     socket.emit('cellChanged', {x, y});
+}
+
+function stopSimulation() {
+    socket.emit('simulationStopped');
+}
+
+function onSimulationStarted() {
+    document.getElementById("nextButton").disabled = true;
+}
+
+function onSimulationFinished() {
+    document.getElementById("nextButton").disabled = false;
 }
 
 setEventHandlers();

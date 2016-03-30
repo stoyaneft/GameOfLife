@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -5,6 +7,7 @@ const io = require('socket.io')(server);
 const Game = require('./game_engine');
 
 const game = new Game(50);
+let intID;
 
 game.loadShape('glider', 1, 1);
 
@@ -23,6 +26,7 @@ function onSocketConnection(client) {
     client.on('clear', onClear);
     client.on('simulate', onSimulate);
     client.on('cellChanged', onCellChanged);
+    client.on('simulationStopped', onSimulationStopped);
     this.emit('boardChanged', game.getBoard());
 }
 
@@ -53,12 +57,14 @@ function onSimulate(data) {
         game.simulate(data.days);
         io.emit('boardChanged', game.getBoard());
     } else if(data.days > 1) {
-        const intId = setInterval(() => {
+        io.emit('simulationStarted');
+        intID = setInterval(() => {
             game.simulate(1);
             io.emit('boardChanged', game.getBoard());
             data.days--;
             if (data.days === 0) {
-                clearInterval(intId);
+                clearInterval(intID);
+                io.emit('simulationFinished');
             }
         }, Math.floor(1000/data.speed));
     }
@@ -75,6 +81,11 @@ function onCellChanged(data) {
         }
         io.emit('boardChanged', game.getBoard());
     }
+}
+
+function onSimulationStopped() {
+    clearInterval(intID);
+    io.emit('simulationFinished');
 }
 
 server.listen(8000, function(){
