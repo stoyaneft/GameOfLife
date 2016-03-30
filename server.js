@@ -1,13 +1,25 @@
 'use strict';
 
 const express = require('express');
+const shapes = require('./shapes.json');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const Game = require('./game_engine');
 
 const game = new Game(50);
+const shapeOptions = Object.getOwnPropertyNames(shapes);
+const state = {
+    board: game.board,
+    population: game.population,
+    generation: game.generation,
+    isInProcess: false,
+    days: 1,
+    speed: 5,
+    shapeOptions
+    };
 let intID;
+
 
 game.loadShape('glider', 1, 1);
 
@@ -27,7 +39,7 @@ function onSocketConnection(client) {
     client.on('simulate', onSimulate);
     client.on('cellChanged', onCellChanged);
     client.on('simulationStopped', onSimulationStopped);
-    this.emit('boardChanged', game.board);
+    this.emit('stateChanged', state);
 }
 
 function onClientDisconnect() {
@@ -42,28 +54,37 @@ function onLoadShape(name) {
     console.log(shape);
     game.loadShape(shape, game.size/2, game.size/2);
     console.log('Shape ' + name + ' loaded');
-    io.emit('boardChanged', game.board);
+    state.board = game.board;
+    state.population = game.population;
+    state.generation = game.generation;
+    io.emit('stateChanged', state);
 }
 
 function onClear() {
     game.restart();
     console.log('board cleared');
-    io.emit('boardChanged', game.board);
+    state.board = game.board;
+    io.emit('stateChanged', state);
 }
 
 function onSimulate(data) {
-    console.log(data);
-    if (data.days === 1) {
-        game.simulate(data.days);
-        io.emit('boardChanged', game.board);
-    } else if(data.days > 1) {
+    if(state.days > 0) {
+        state.speed = data.speed;
+        state.days = data.days;
+        state.isInProcess = true;
+        console.log(data);
         io.emit('simulationStarted');
         intID = setInterval(() => {
             game.simulate(1);
-            io.emit('boardChanged', game.board);
-            data.days--;
-            if (data.days === 0) {
+            state.board = game.board;
+            state.population = game.population;
+            state.generation = game.generation;
+            io.emit('stateChanged', state);
+            state.days--;
+            if (state.days === 0) {
                 clearInterval(intID);
+                state.isInProcess = false;
+                state.days = 1;
                 io.emit('simulationFinished');
             }
         }, Math.floor(1000/data.speed));
@@ -79,12 +100,14 @@ function onCellChanged(data) {
         } else {
             game.placeAt(x, y);
         }
-        io.emit('boardChanged', game.board);
+        state.board = game.board;
+        io.emit('stateChanged', state);
     }
 }
 
 function onSimulationStopped() {
     clearInterval(intID);
+    state.isInProcess = false;
     io.emit('simulationFinished');
 }
 

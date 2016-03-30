@@ -1,7 +1,6 @@
 const socket = io();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const board = [];
 
 ctx.strokeStyle = 'black';
 ctx.fillStyle = 'blue';
@@ -10,15 +9,20 @@ const sqrSize = 20;
 canvas.addEventListener('click', onMouseClick, false);
 
 function setEventHandlers() {
-    socket.on('boardChanged', onBoardChanged);
+    socket.on('stateChanged', onStateChanged);
     socket.on('simulationFinished', onSimulationFinished);
     socket.on('simulationStarted', onSimulationStarted);
 }
 
-function onBoardChanged(board) {
-    draw(board);
-    console.log('Board changed');
-    window.board = board;
+
+function onStateChanged(state) {
+    draw(state.board);
+    document.getElementById('days').value = state.days;
+    document.getElementById('speed').value = state.speed;
+    document.getElementById("nextButton").disabled = state.isInProcess;
+    document.getElementById('generationCount').innerText = state.generation;
+    document.getElementById('populationCount').innerText = state.population;
+
 }
 
 function draw(board) {
@@ -47,6 +51,7 @@ function restart() {
 function simulate() {
     const days = parseInt(document.getElementById('days').value);
     const speed = parseInt(document.getElementById('speed').value);
+    document.getElementById("nextButton").disabled = true;
     socket.emit('simulate', {days, speed});
 }
 

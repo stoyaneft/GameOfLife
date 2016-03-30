@@ -28,7 +28,8 @@ class Game {
     };
 
     restart() {
-        this.generations = 0;
+        this._generation = 0;
+        this._population = 0;
         this._board = this.getNewBoard();
     }
 
