@@ -8,8 +8,8 @@ let shapes = [];
 
 function initGame() {
     setEventHandlers();
-    ctx.strokeStyle = 'black';
-    ctx.fillStyle = 'blue';
+    ctx.strokeStyle = 'gray';
+    ctx.fillStyle = 'lightgreen';
 }
 
 function setEventHandlers() {
@@ -24,13 +24,14 @@ function onStateChanged(state) {
     draw(state.board);
     document.getElementById('days').value = state.days;
     document.getElementById('speed').value = state.speed;
-    document.getElementById("nextButton").disabled = state.isInProcess;
+    document.getElementById('nextButton').disabled = state.isInProcess;
+    document.getElementById('stopButton').disabled = !state.isInProcess;
     document.getElementById('generationCount').innerText = state.generation;
     document.getElementById('populationCount').innerText = state.population;
     if (shapes.length === 0) {
         shapes = state.shapeOptions;
         shapes.forEach(shape => {
-            var option = document.createElement("option");
+            var option = document.createElement('option');
             option.text = shape;
             shapesSelect.add(option);
         });
@@ -80,11 +81,13 @@ function stopSimulation() {
 }
 
 function onSimulationStarted() {
-    document.getElementById("nextButton").disabled = true;
+    document.getElementById('nextButton').disabled = true;
+    document.getElementById('stopButton').disabled = false;
 }
 
 function onSimulationFinished() {
-    document.getElementById("nextButton").disabled = false;
+    document.getElementById('nextButton').disabled = false;
+    document.getElementById('stopButton').disabled = true;;
 }
 
 initGame();

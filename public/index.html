@@ -6,27 +6,23 @@
     <link rel="stylesheet" type="text/css" href="./css/style.css">
 </head>
 <body>
-    <h1>Game of Life</h1>
+    <img src="images/gameOflife.jpg"/>
     <p>The Game of Life is not your typical computer game. It is a 'cellular automaton', and was invented by Cambridge
         mathematician John Conway.</p>
-    <canvas id="gameCanvas" width="1200" height="1000"></canvas>
-    <form>
+    <div id="canvas-container"> <form>
         <select id="shapes" onchange="loadPattern(this.value)">
-            <!--<option>Glider</option>-->
-            <!--<option>Small Exploder</option>-->
-            <!--<option>Exploder</option>-->
-            <!--<option>Ten Cell Row</option>-->
-            <!--<option>Infinite</option>-->
-            <!--<option>Pulsar</option>-->
         </select>
         <button id="nextButton" type="button" onclick="simulate()">Next</button>
         <input id="days" type="number" value="1" min="1" size="1"/>
-        <button type="button" onclick="stopSimulation()">Stop</button>
+        <button id="stopButton" type="button" onclick="stopSimulation()">Stop</button>
         <input id="speed" type="range" step="1" min="1" max="10"/>
         <button type="button" onclick="restart()">Clear</button>
         <label id="generationCount">0</label>
         <label id="populationCount">0</label>
     </form>
+        <canvas id="gameCanvas" width="1000" height="1000"></canvas>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script src="./js/game.js" type="text/javascript"></script>
 </body>
