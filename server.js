@@ -1,7 +1,9 @@
 'use strict';
 
 const express = require('express');
+const fs = require('fs');
 const shapes = require('./shapes.json');
+const patterns = {};
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
@@ -21,7 +23,11 @@ const state = {
 let intID;
 
 
-game.loadShape('glider', 1, 1);
+//game.loadPattern('glider', 1, 1);
+//game.loadPatternFile('newgun1.lif');
+loadLifeFiles();
+
+
 
 app.use(express.static('public'));
 
@@ -34,7 +40,7 @@ io.on('connection', onSocketConnection);
 function onSocketConnection(client) {
     console.log('client connected');
     client.on('disconnect', onClientDisconnect);
-    client.on('loadShape', onLoadShape);
+    client.on('loadPattern', onLoadPattern);
     client.on('clear', onClear);
     client.on('simulate', onSimulate);
     client.on('cellChanged', onCellChanged);
@@ -46,14 +52,11 @@ function onClientDisconnect() {
     console.log('Player has disconnected');
 }
 
-function onLoadShape(name) {
+function onLoadPattern(name) {
     game.restart();
-    const words = name.split(' ');
-    words[0] = words[0].toLowerCase();
-    const shape = words.join('');
-    console.log(shape);
-    game.loadShape(shape, game.size/2, game.size/2);
-    console.log('Shape ' + name + ' loaded');
+    const pattern = patterns[name];
+    game.loadPattern(pattern);
+    console.log('Pattern ' + name + ' loaded');
     state.board = game.board;
     state.population = game.population;
     state.generation = game.generation;
@@ -109,6 +112,19 @@ function onSimulationStopped() {
     clearInterval(intID);
     state.isInProcess = false;
     io.emit('simulationFinished');
+}
+
+function loadLifeFiles() {
+    fs.readdir(__dirname + '/patterns', (err, filenames) => {
+        if (err) {
+            throw err;
+        }
+        filenames.forEach((filename) => {
+            const pattern = game.loadPatternFile('patterns/' + filename);
+            patterns[pattern.name] = pattern;
+        });
+        state.shapeOptions = Object.getOwnPropertyNames(patterns);
+    });
 }
 
 server.listen(8000, function(){

@@ -11,13 +11,13 @@
         mathematician John Conway.</p>
     <canvas id="gameCanvas" width="1200" height="1000"></canvas>
     <form>
-        <select id="shapes" onchange="loadShape(this.value)">
-            <option>Glider</option>
-            <option>Small Exploder</option>
-            <option>Exploder</option>
-            <option>Ten Cell Row</option>
-            <option>Infinite</option>
-            <option>Pulsar</option>
+        <select id="shapes" onchange="loadPattern(this.value)">
+            <!--<option>Glider</option>-->
+            <!--<option>Small Exploder</option>-->
+            <!--<option>Exploder</option>-->
+            <!--<option>Ten Cell Row</option>-->
+            <!--<option>Infinite</option>-->
+            <!--<option>Pulsar</option>-->
         </select>
         <button id="nextButton" type="button" onclick="simulate()">Next</button>
         <input id="days" type="number" value="1" min="1" size="1"/>

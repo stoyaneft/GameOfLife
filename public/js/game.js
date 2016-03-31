@@ -1,17 +1,22 @@
 const socket = io();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-
-ctx.strokeStyle = 'black';
-ctx.fillStyle = 'blue';
+const shapesSelect = document.getElementById('shapes');
 const sqrSize = 20;
+let shapes = [];
 
-canvas.addEventListener('click', onMouseClick, false);
+
+function initGame() {
+    setEventHandlers();
+    ctx.strokeStyle = 'black';
+    ctx.fillStyle = 'blue';
+}
 
 function setEventHandlers() {
     socket.on('stateChanged', onStateChanged);
     socket.on('simulationFinished', onSimulationFinished);
     socket.on('simulationStarted', onSimulationStarted);
+    canvas.addEventListener('click', onMouseClick, false);
 }
 
 
@@ -22,7 +27,14 @@ function onStateChanged(state) {
     document.getElementById("nextButton").disabled = state.isInProcess;
     document.getElementById('generationCount').innerText = state.generation;
     document.getElementById('populationCount').innerText = state.population;
-
+    if (shapes.length === 0) {
+        shapes = state.shapeOptions;
+        shapes.forEach(shape => {
+            var option = document.createElement("option");
+            option.text = shape;
+            shapesSelect.add(option);
+        });
+    }
 }
 
 function draw(board) {
@@ -40,8 +52,8 @@ function draw(board) {
     });
 }
 
-function loadShape(shape) {
-    socket.emit('loadShape', shape);
+function loadPattern(shape) {
+    socket.emit('loadPattern', shape);
 }
 
 function restart() {
@@ -75,4 +87,4 @@ function onSimulationFinished() {
     document.getElementById("nextButton").disabled = false;
 }
 
-setEventHandlers();
+initGame();

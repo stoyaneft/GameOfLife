@@ -34,7 +34,7 @@ describe('Game', () => {
 
     describe('#getNeighboursOf(x, y)', () => {
         it('should calculate neighbours of cell [x, y]', () => {
-            game.loadShape('smallExploder', 0, 0);
+            game.loadPattern('smallExploder', 0, 0);
             const n1 = game.getNeighboursOf(0, 0);
             expect(n1).to.equal(3);
             const n2 = game.getNeighboursOf(1, 1);
@@ -47,7 +47,7 @@ describe('Game', () => {
     describe('#_calcNextState(x, y)', () => {
         it('should calculate next state for cell [x, y]', () => {
             const x = game.size/2, y = game.size / 2 - 5;
-            game.loadShape('tenCellRow', x, y);
+            game.loadPattern('tenCellRow', x, y);
             const first = game._calcNextState(x, y);
             const second = game._calcNextState(x, y + 1);
             expect(first).to.equal(0);
@@ -58,7 +58,7 @@ describe('Game', () => {
     describe('#_calcNextBoard()', () => {
         it('should calculate board state after one day', () => {
             const x = game.size/2, y = game.size / 2 - 5;
-            game.loadShape('tenCellRow', x, y);
+            game.loadPattern('tenCellRow', x, y);
 
             const nextBoard = game._calcNextBoard();
             let expectedBoard = game.getNewBoard();
@@ -75,7 +75,7 @@ describe('Game', () => {
     describe('#simulate()', () => {
        it('should simulate board state after several days', () => {
            const x = game.size/2, y = game.size / 2 - 5;
-           game.loadShape('tenCellRow', x, y);
+           game.loadPattern('tenCellRow', x, y);
            game.simulate(61);
            let expectedBoard = game.getNewBoard();
            expectedBoard.forEach((row, i) => {

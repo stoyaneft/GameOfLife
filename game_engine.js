@@ -1,6 +1,7 @@
 'use strict';
 
 const shapes = require('./shapes.json');
+const fs = require('fs');
 
 class Game {
 
@@ -18,7 +19,7 @@ class Game {
     get generation() {
         return this._generation;
     }
-    
+
     get population() {
         return this._population;
     }
@@ -39,13 +40,13 @@ class Game {
 
     placeAt(x, y) {
         if (this.inBoard(x, y)) {
-            this._board[x][y] = 1;            
+            this._board[x][y] = 1;
         } else {
             throw Error('CellOutsideBoard');
         }
         return this;
     }
-    
+
     removeAt(x, y) {
         if (this.inBoard(x, y)) {
             this._board[x][y] = 0;
@@ -54,7 +55,7 @@ class Game {
         }
         return this;
     }
-    
+
     isAlive(x, y) {
         if (this.inBoard(x, y)) {
             return this._board[x][y];
@@ -76,7 +77,7 @@ class Game {
         const DY = [-1, 0, 1, -1, 1, -1, 0, 1];
         let neighCount = 0;
         for (let i = 0; i < 8; i++) {
-            const newX =  x + DX[i];
+            const newX = x + DX[i];
             const newY = y + DY[i];
             if (this.inBoard(newX, newY) && this._board[newX][newY] === 1) {
                 neighCount++;
@@ -104,6 +105,9 @@ class Game {
     }
 
     _calcNextBoard() {
+        if (this._population === 0) {
+            return this._board;
+        }
         let nextBoard = this.getNewBoard();
         nextBoard.forEach((row, i) => {
             row.forEach((_, j) => {
@@ -112,20 +116,61 @@ class Game {
         });
         return nextBoard;
     }
-    
-    loadShape(name, x, y) {
-        const shape = shapes[name];
-        shape.forEach((row, i) => {
-           row.forEach((cell, j) => {
-               this._board[x+i][y+j] = cell;
-               if (cell) {
-                   this._population++;
-               }
-           }) ;
+
+    loadPattern(pattern) {
+        const topLeftX = pattern.topLeft[0];
+        const topLeftY = pattern.topLeft[1];
+        const board = pattern.board;
+        board.forEach((row, i) => {
+            row.forEach((cell, j) => {
+                this._board[topLeftX + i][topLeftY + j] = cell;
+                if (cell) {
+                    this._population++;
+                }
+            });
         });
     };
 
+    loadPatternFile(filename) {
+        let  data = fs.readFileSync(filename);
+        let board = [], topLeft, name;
+        data = data.toString();
+        const lines = data.split('\r\n').filter((line) => {
+            return line[0] != '#' || line[1] === 'P' || line.indexOf('Name:') > -1;
+        });
+        const centerX = this._size / 2, centerY = this._size / 2;
+        let topLeftX = centerX, topLeftY = centerY;
+        lines.forEach((line) => {
+            const row = [];
+            if (line[0] === '#') {
+                const splitLine = line.split(' ');
+                if (line[1] === 'P') {
+                    topLeftX = centerX + parseInt(splitLine[2]);
+                    topLeftY = centerY + parseInt(splitLine[1]);
+                    topLeft = [topLeftX, topLeftY];
+                } else {
+                    const idx = line.indexOf('Name:');
+                    name = line.slice(idx + 6);
+                }
+            } else {
+                line = line.split('');
+                line.forEach((char) => {
+                    if (char === '*') {
+                        row.push(1);
+                    } else {
+                        row.push(0);
+                    }
+                })
+            }
+            board.push(row);
+        });
+        return {board, topLeft, name};
+    }
+
     simulate(days) {
+        if (this._population === 0) {
+            return;
+        }
         days = days | 1;
         for (let i = 0; i < days; i++) {
             this._board = this._calcNextBoard();
@@ -133,5 +178,9 @@ class Game {
         this._generation += days;
     };
 }
+
+
+var game = new Game(40);
+//console.log(game.loadPatternFile('./patterns/ggg.lif'));
 
 module.exports = Game;
