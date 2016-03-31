@@ -2,7 +2,7 @@ const socket = io();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const patternsSelect = document.getElementById('patterns');
-const sqrSize = 20;
+const sqrSize = 15;
 
 
 function initGame() {
@@ -23,9 +23,10 @@ function onPatternsLoaded(patternNames) {
     while (patternsSelect.firstChild) {
         patternsSelect.removeChild(patternsSelect.firstChild);
     }
-    patternNames.forEach(shape => {
+    patternNames.forEach((shape) => {
         var option = document.createElement('option');
         option.text = shape;
+        option.value = shape;
         patternsSelect.add(option);
     });
 }
@@ -38,6 +39,7 @@ function onStateChanged(state) {
     document.getElementById('stopButton').disabled = !state.isInProcess;
     document.getElementById('generationCount').innerText = state.generation;
     document.getElementById('populationCount').innerText = state.population;
+    patternsSelect.value = state.selectedPattern;
 }
 
 function draw(board) {

@@ -121,12 +121,17 @@ class Game {
 
     loadPattern(name) {
         const pattern = this._patterns.get(name);
+        if (!pattern) {
+            throw new Error(`No pattern: ${name}`);
+        }
         const topLeftX = pattern.topLeft[0];
         const topLeftY = pattern.topLeft[1];
+        console.log('x: ' + topLeftX + ' y: ' + topLeftY);
         const board = pattern.board;
         board.forEach((row, i) => {
             row.forEach((cell, j) => {
                 this._board[topLeftX + i][topLeftY + j] = cell;
+                console.log(topLeftX + i + ' ' + (topLeftY + j));
                 if (cell) {
                     this._population++;
                 }
@@ -146,7 +151,7 @@ class Game {
                     const lines = data.split('\r\n').filter((line) => {
                         return line[0] != '#' || line[1] === 'P' || line.indexOf('Name:') > -1;
                     });
-                    const centerX = this._size / 2, centerY = this._size / 2;
+                    const centerX = Math.floor(this._size / 2), centerY = Math.floor(this._size / 2);
                     let topLeftX = centerX, topLeftY = centerY;
                     lines.forEach((line) => {
                         const row = [];
@@ -181,7 +186,7 @@ class Game {
     }
 
     simulate(days) {
-        days = days | 1;
+        days = days || 1;
         for (let i = 0; i < days; i++) {
             if (this._population === 0) {
                 return;

@@ -1,8 +1,10 @@
 'use strict';
 
 const CommandParser = require('./command_parser');
+const fs = require('fs');
 const Game = require('./game_engine');
 const readLine = require('readline');
+let patterns = [];
 
 let game;
 const rl = readLine.createInterface(process.stdin,process.stdout);
@@ -12,15 +14,20 @@ function createCommandParser() {
     parser.addCommand('new', newGame)
         .addCommand('cell', newCell)
         .addCommand('show', show)
-        .addCommand('help', help)
         .addCommand('clear', clear)
         .addCommand('simulate', simulate)
+        .addCommand('load', load)
+        .addCommand('list', list)
+        .addCommand('help', help)
         .addCommand('close', process.exit);
     return parser;
 }
 
 function newGame(size) {
     game = new Game(parseInt(size));
+    loadLifeFiles().then((res) => {
+        patterns = res;
+    });
     show();
 }
 
@@ -35,7 +42,7 @@ function newCell(x, y) {
 }
 
 function show() {
-    console.log('Days passed: ' + game.generations);
+    console.log('Days passed: ' + game.generation);
     const symbols = ['O', '*'];
     const board = game.board;
     const boardStr = board.map(row => {
@@ -53,7 +60,9 @@ function help() {
         '- "show" - shows current state of the board\n>' +
         '- "help" - shows list of available commands\n>' +
         '- "clear" - clears game board\n>' +
-        '- "simulate" <days> - simulates game stete for <days>\n>' +
+        '- "simulate" <days> - simulates game state for <days>\n>' +
+        '- "load" <pattern> - loads <pattern>\n' +
+        '- "list" - lists available patterns\n' +
         '- "close" - closes the game\n>');
 }
 
@@ -64,6 +73,46 @@ function clear() {
 function simulate(days) {
     game.simulate(days);
     show();
+}
+
+function load(pattern) {
+    try {
+        game.loadPattern(pattern);
+        show();
+    } catch(e) {
+        if(e.message === `No pattern: ${pattern}`) {
+            console.log(e.message);
+            console.log('Enter "list" to see list of available patterns');
+        } else {
+            throw e;
+        }
+    }
+}
+
+function list() {
+    console.log('Available patterns:');
+    patterns.forEach((pattern) => {
+        console.log('- ' + pattern);
+    })
+}
+
+function loadLifeFiles() {
+    return new Promise((resolve, reject) => {
+        fs.readdir(__dirname + '/patterns', (err, filenames) => {
+            if (err) {
+                reject(err);
+            }
+            const filePromises = [];
+            filenames.forEach((filename) => {
+                const pattern = game.loadPatternFile('patterns/' + filename);
+                filePromises.push(pattern);
+            });
+            Promise.all(filePromises).then(patternNames => {
+                resolve(patternNames);
+            });
+        });
+
+    })
 }
 
 function prompt(parser) {

@@ -48,7 +48,7 @@ button:disabled {
     background-color: black;
     padding: 10px;
     border: 3px solid lightgray;
-    width: 1000px;
+    width: 750px;
     margin: 50px;
 }
 
@@ -59,10 +59,11 @@ body {
 }
 
 form {
-    margin-bottom: 20px;
+    margin-bottom: 20px;;
 }
 select {
     padding:3px;
+    height: 20px;
     margin: 0;
     -webkit-border-radius:4px;
     -moz-border-radius:4px;

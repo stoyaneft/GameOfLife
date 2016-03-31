@@ -49,11 +49,13 @@ function onClientDisconnect() {
 }
 
 function onLoadPattern(name) {
+    game.restart();
     game.loadPattern(name);
     console.log('Pattern ' + name + ' loaded');
     state.board = game.board;
     state.population = game.population;
     state.generation = game.generation;
+    state.selectedPattern = name;
     io.emit('stateChanged', state);
 }
 
@@ -133,7 +135,6 @@ function loadLifeFiles() {
                 io.emit('patternsLoaded', patterns);
             });
         });
-
     })
 }
 
