@@ -10,22 +10,18 @@ const io = require('socket.io')(server);
 const Game = require('./game_engine');
 
 const game = new Game(50);
-const shapeOptions = Object.getOwnPropertyNames(shapes);
 const state = {
     board: game.board,
     population: game.population,
     generation: game.generation,
     isInProcess: false,
     days: 1,
-    speed: 5,
-    shapeOptions
+    speed: 5
     };
 let intID;
 
+//loadLifeFiles();
 
-//game.loadPattern('glider', 1, 1);
-//game.loadPatternFile('newgun1.lif');
-loadLifeFiles();
 
 
 
@@ -45,6 +41,7 @@ function onSocketConnection(client) {
     client.on('simulate', onSimulate);
     client.on('cellChanged', onCellChanged);
     client.on('simulationStopped', onSimulationStopped);
+    loadLifeFiles();
     this.emit('stateChanged', state);
 }
 
@@ -53,9 +50,7 @@ function onClientDisconnect() {
 }
 
 function onLoadPattern(name) {
-    game.restart();
-    const pattern = patterns[name];
-    game.loadPattern(pattern);
+    game.loadPattern(name);
     console.log('Pattern ' + name + ' loaded');
     state.board = game.board;
     state.population = game.population;
@@ -119,11 +114,15 @@ function loadLifeFiles() {
         if (err) {
             throw err;
         }
+        const filePromises = [];
         filenames.forEach((filename) => {
             const pattern = game.loadPatternFile('patterns/' + filename);
-            patterns[pattern.name] = pattern;
+            filePromises.push(pattern);
         });
-        state.shapeOptions = Object.getOwnPropertyNames(patterns);
+        Promise.all(filePromises).then(patternNames => {
+            io.emit('patternsLoaded', patternNames);
+            console.log(patternNames);
+        });
     });
 }
 

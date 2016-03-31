@@ -34,61 +34,67 @@ describe('Game', () => {
 
     describe('#getNeighboursOf(x, y)', () => {
         it('should calculate neighbours of cell [x, y]', () => {
-            game.loadPattern('smallExploder', 0, 0);
-            const n1 = game.getNeighboursOf(0, 0);
-            expect(n1).to.equal(3);
-            const n2 = game.getNeighboursOf(1, 1);
-            expect(n2).to.equal(5);
-            const n3 = game.getNeighboursOf(game.size -1 , game.size-1);
-            expect(n3).to.equal(0);
+            game.loadPatternFile('/patterns/glider').then(() => {
+                game.loadPattern('Glider');
+                const n1 = game.getNeighboursOf(9, 9);
+                expect(n1).to.equal(3);
+                const n2 = game.getNeighboursOf(10, 10);
+                expect(n2).to.equal(5);
+                const n3 = game.getNeighboursOf(game.size -1 , game.size-1);
+                expect(n3).to.equal(0);
+            })
+
         })
     });
 
     describe('#_calcNextState(x, y)', () => {
         it('should calculate next state for cell [x, y]', () => {
-            const x = game.size/2, y = game.size / 2 - 5;
-            game.loadPattern('tenCellRow', x, y);
-            const first = game._calcNextState(x, y);
-            const second = game._calcNextState(x, y + 1);
-            expect(first).to.equal(0);
-            expect(second).to.equal(1);
+            game.loadPatternFile('tenCellRow.lif').then(() => {
+                game.loadPattern('10 Cell Row');
+                const first = game._calcNextState(x, y);
+                const second = game._calcNextState(x, y + 1);
+                expect(first).to.equal(0);
+                expect(second).to.equal(1);                
+            });
         })
     });
 
     describe('#_calcNextBoard()', () => {
         it('should calculate board state after one day', () => {
-            const x = game.size/2, y = game.size / 2 - 5;
-            game.loadPattern('tenCellRow', x, y);
-
-            const nextBoard = game._calcNextBoard();
-            let expectedBoard = game.getNewBoard();
-            expectedBoard.forEach((row, i) => {
-                row.forEach((cell, j) => {
-                    if (i >= x - 1 && i <= x + 1 && j >= y + 1 && j <= y + 8)
-                        expectedBoard[i][j] = 1;
+            game.loadPatternFile('tenCellRow.lif').then(() => {
+                game.loadPattern('10 Cell Row');
+                const nextBoard = game._calcNextBoard();
+                let expectedBoard = game.getNewBoard();
+                expectedBoard.forEach((row, i) => {
+                    row.forEach((cell, j) => {
+                        if (i >= x - 1 && i <= x + 1 && j >= y + 1 && j <= y + 8)
+                            expectedBoard[i][j] = 1;
+                    });
                 });
+                expect(expectedBoard).to.eql(nextBoard);
             });
-            expect(expectedBoard).to.eql(nextBoard);
         });
     });
 
     describe('#simulate()', () => {
        it('should simulate board state after several days', () => {
            const x = game.size/2, y = game.size / 2 - 5;
-           game.loadPattern('tenCellRow', x, y);
-           game.simulate(61);
-           let expectedBoard = game.getNewBoard();
-           expectedBoard.forEach((row, i) => {
-               row.forEach((cell, j) => {
-                   if (i >= x - 1 && i <= x + 1 && j >= y + 1 && j <= y + 8)
-                       expectedBoard[i][j] = 1;
+           game.loadPatternFile('tenCellRow.lif').then(() => {
+               game.loadPattern('10 Cell Row');
+               game.simulate(61);
+               let expectedBoard = game.getNewBoard();
+               expectedBoard.forEach((row, i) => {
+                   row.forEach((cell, j) => {
+                       if (i >= x - 1 && i <= x + 1 && j >= y + 1 && j <= y + 8)
+                           expectedBoard[i][j] = 1;
+                   });
                });
+               expectedBoard[x][y + 2] = 0;
+               expectedBoard[x][y + 7] = 0;
+               expect(game.board).to.eql(expectedBoard);
+               expect(game.generation).to.equal(61);
+               expect(game.population).to.equal(22);
            });
-           expectedBoard[x][y+2] = 0;
-           expectedBoard[x][y+7] = 0;
-           expect(game.board).to.eql(expectedBoard);
-           expect(game.generation).to.equal(61);
-           expect(game.population).to.equal(22);
        });
     });
 });

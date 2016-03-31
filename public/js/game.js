@@ -3,7 +3,6 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 const shapesSelect = document.getElementById('shapes');
 const sqrSize = 20;
-let shapes = [];
 
 
 function initGame() {
@@ -13,12 +12,21 @@ function initGame() {
 }
 
 function setEventHandlers() {
+    socket.on('patternsLoaded', onPatternsLoaded);
     socket.on('stateChanged', onStateChanged);
     socket.on('simulationFinished', onSimulationFinished);
     socket.on('simulationStarted', onSimulationStarted);
     canvas.addEventListener('click', onMouseClick, false);
 }
 
+function onPatternsLoaded(patternNames) {
+    console.log(patternNames);
+    patternNames.forEach(shape => {
+        var option = document.createElement('option');
+        option.text = shape;
+        shapesSelect.add(option);
+    });
+}
 
 function onStateChanged(state) {
     draw(state.board);
@@ -28,14 +36,6 @@ function onStateChanged(state) {
     document.getElementById('stopButton').disabled = !state.isInProcess;
     document.getElementById('generationCount').innerText = state.generation;
     document.getElementById('populationCount').innerText = state.population;
-    if (shapes.length === 0) {
-        shapes = state.shapeOptions;
-        shapes.forEach(shape => {
-            var option = document.createElement('option');
-            option.text = shape;
-            shapesSelect.add(option);
-        });
-    }
 }
 
 function draw(board) {
@@ -53,8 +53,8 @@ function draw(board) {
     });
 }
 
-function loadPattern(shape) {
-    socket.emit('loadPattern', shape);
+function loadPattern(pattenr) {
+    socket.emit('loadPattern', pattern);
 }
 
 function restart() {

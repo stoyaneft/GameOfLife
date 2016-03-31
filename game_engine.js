@@ -10,6 +10,7 @@ class Game {
         this._generation = 0;
         this._population = 0;
         this._board = this.getNewBoard();
+        this._patterns = new Map();
     }
 
     get size() {
@@ -117,7 +118,9 @@ class Game {
         return nextBoard;
     }
 
-    loadPattern(pattern) {
+    loadPattern(name) {
+        this.restart();
+        const pattern = this._patterns.get(name);
         const topLeftX = pattern.topLeft[0];
         const topLeftY = pattern.topLeft[1];
         const board = pattern.board;
@@ -129,42 +132,52 @@ class Game {
                 }
             });
         });
+        console.log('Pattern ' + name);
     };
 
     loadPatternFile(filename) {
-        let  data = fs.readFileSync(filename);
-        let board = [], topLeft, name;
-        data = data.toString();
-        const lines = data.split('\r\n').filter((line) => {
-            return line[0] != '#' || line[1] === 'P' || line.indexOf('Name:') > -1;
-        });
-        const centerX = this._size / 2, centerY = this._size / 2;
-        let topLeftX = centerX, topLeftY = centerY;
-        lines.forEach((line) => {
-            const row = [];
-            if (line[0] === '#') {
-                const splitLine = line.split(' ');
-                if (line[1] === 'P') {
-                    topLeftX = centerX + parseInt(splitLine[2]);
-                    topLeftY = centerY + parseInt(splitLine[1]);
-                    topLeft = [topLeftX, topLeftY];
+        return new Promise((resolve, reject) => {
+            fs.readFile(filename, (err, data) => {
+                if (err) {
+                    reject(err);
                 } else {
-                    const idx = line.indexOf('Name:');
-                    name = line.slice(idx + 6);
+                    let board = [], topLeft, name;
+                    data = data.toString();
+                    const lines = data.split('\r\n').filter((line) => {
+                        return line[0] != '#' || line[1] === 'P' || line.indexOf('Name:') > -1;
+                    });
+                    const centerX = this._size / 2, centerY = this._size / 2;
+                    let topLeftX = centerX, topLeftY = centerY;
+                    lines.forEach((line) => {
+                        const row = [];
+                        if (line[0] === '#') {
+                            const splitLine = line.split(' ');
+                            if (line[1] === 'P') {
+                                topLeftX = centerX + parseInt(splitLine[2]);
+                                topLeftY = centerY + parseInt(splitLine[1]);
+                                topLeft = [topLeftX, topLeftY];
+                            } else {
+                                const idx = line.indexOf('Name:');
+                                name = line.slice(idx + 6);
+                            }
+                        } else {
+                            line = line.split('');
+                            line.forEach((char) => {
+                                if (char === '*') {
+                                    row.push(1);
+                                } else {
+                                    row.push(0);
+                                }
+                            })
+                        }
+                        board.push(row);
+                    });
+                    this._patterns.set(name, {board, topLeft});
+                    resolve(name);
                 }
-            } else {
-                line = line.split('');
-                line.forEach((char) => {
-                    if (char === '*') {
-                        row.push(1);
-                    } else {
-                        row.push(0);
-                    }
-                })
-            }
-            board.push(row);
+            })
         });
-        return {board, topLeft, name};
+
     }
 
     simulate(days) {
@@ -180,7 +193,12 @@ class Game {
 }
 
 
-var game = new Game(40);
-//console.log(game.loadPatternFile('./patterns/ggg.lif'));
+var game = new Game(20);
+// game.loadPatternFile('./patterns/glider.lif').then((res) => {
+//     console.log(res);
+//     console.log(game._patterns);
+//     game.loadPattern('Glider');
+//     console.log(game.board)
+// });
 
 module.exports = Game;
