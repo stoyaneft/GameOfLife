@@ -1,6 +1,5 @@
 'use strict';
 
-const shapes = require('./shapes.json');
 const fs = require('fs');
 
 class Game {
@@ -42,6 +41,7 @@ class Game {
     placeAt(x, y) {
         if (this.inBoard(x, y)) {
             this._board[x][y] = 1;
+            this._population++;
         } else {
             throw Error('CellOutsideBoard');
         }
@@ -51,6 +51,7 @@ class Game {
     removeAt(x, y) {
         if (this.inBoard(x, y)) {
             this._board[x][y] = 0;
+            this._population--;
         } else {
             throw Error('CellOutsideBoard');
         }
@@ -119,7 +120,6 @@ class Game {
     }
 
     loadPattern(name) {
-        this.restart();
         const pattern = this._patterns.get(name);
         const topLeftX = pattern.topLeft[0];
         const topLeftY = pattern.topLeft[1];
@@ -181,24 +181,15 @@ class Game {
     }
 
     simulate(days) {
-        if (this._population === 0) {
-            return;
-        }
         days = days | 1;
         for (let i = 0; i < days; i++) {
+            if (this._population === 0) {
+                return;
+            }
             this._board = this._calcNextBoard();
         }
         this._generation += days;
     };
 }
-
-
-var game = new Game(20);
-// game.loadPatternFile('./patterns/glider.lif').then((res) => {
-//     console.log(res);
-//     console.log(game._patterns);
-//     game.loadPattern('Glider');
-//     console.log(game.board)
-// });
 
 module.exports = Game;

@@ -2,12 +2,12 @@
 
 const express = require('express');
 const fs = require('fs');
-const shapes = require('./shapes.json');
-const patterns = {};
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const Game = require('./game_engine');
+let patterns = [];
+let lastNext = 1;
 
 const game = new Game(50);
 const state = {
@@ -20,18 +20,16 @@ const state = {
     };
 let intID;
 
-//loadLifeFiles();
-
-
-
-
 app.use(express.static('public'));
 
 app.get('/', (req, res) =>{
     res.sendFile(__dirname + '/public/index.html');
 });
 
+
 io.on('connection', onSocketConnection);
+
+loadLifeFiles();
 
 function onSocketConnection(client) {
     console.log('client connected');
@@ -41,8 +39,9 @@ function onSocketConnection(client) {
     client.on('simulate', onSimulate);
     client.on('cellChanged', onCellChanged);
     client.on('simulationStopped', onSimulationStopped);
-    loadLifeFiles();
-    this.emit('stateChanged', state);
+    client.emit('stateChanged', state);
+    if (patterns.length !== 0)
+        client.emit('patternsLoaded', patterns);
 }
 
 function onClientDisconnect() {
@@ -62,11 +61,15 @@ function onClear() {
     game.restart();
     console.log('board cleared');
     state.board = game.board;
+    state.population = game.population;
+    state.generation = game.generation;
+    state.isInProcess = false;
     io.emit('stateChanged', state);
 }
 
 function onSimulate(data) {
     if(state.days > 0) {
+        lastNext = data.days;
         state.speed = data.speed;
         state.days = data.days;
         state.isInProcess = true;
@@ -79,11 +82,11 @@ function onSimulate(data) {
             state.generation = game.generation;
             io.emit('stateChanged', state);
             state.days--;
-            if (state.days === 0) {
+            if (state.days === 0 || state.population === 0) {
                 clearInterval(intID);
                 state.isInProcess = false;
                 state.days = 1;
-                io.emit('simulationFinished');
+                io.emit('simulationFinished', lastNext);
             }
         }, Math.floor(1000/data.speed));
     }
@@ -99,6 +102,10 @@ function onCellChanged(data) {
             game.placeAt(x, y);
         }
         state.board = game.board;
+        state.generation = game.generation;
+        state.population = game.population;
+        state.inProcess = false;
+        state.days = lastNext;
         io.emit('stateChanged', state);
     }
 }
@@ -106,24 +113,28 @@ function onCellChanged(data) {
 function onSimulationStopped() {
     clearInterval(intID);
     state.isInProcess = false;
-    io.emit('simulationFinished');
+    io.emit('simulationFinished', lastNext);
 }
 
 function loadLifeFiles() {
-    fs.readdir(__dirname + '/patterns', (err, filenames) => {
-        if (err) {
-            throw err;
-        }
-        const filePromises = [];
-        filenames.forEach((filename) => {
-            const pattern = game.loadPatternFile('patterns/' + filename);
-            filePromises.push(pattern);
+    return new Promise((resolve, reject) => {
+        fs.readdir(__dirname + '/patterns', (err, filenames) => {
+            if (err) {
+                reject(err);
+            }
+            const filePromises = [];
+            filenames.forEach((filename) => {
+                const pattern = game.loadPatternFile('patterns/' + filename);
+                filePromises.push(pattern);
+            });
+            Promise.all(filePromises).then(patternNames => {
+                patterns = patternNames;
+                console.log(patterns);
+                io.emit('patternsLoaded', patterns);
+            });
         });
-        Promise.all(filePromises).then(patternNames => {
-            io.emit('patternsLoaded', patternNames);
-            console.log(patternNames);
-        });
-    });
+
+    })
 }
 
 server.listen(8000, function(){

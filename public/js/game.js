@@ -1,7 +1,7 @@
 const socket = io();
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-const shapesSelect = document.getElementById('shapes');
+const patternsSelect = document.getElementById('patterns');
 const sqrSize = 20;
 
 
@@ -20,11 +20,13 @@ function setEventHandlers() {
 }
 
 function onPatternsLoaded(patternNames) {
-    console.log(patternNames);
+    while (patternsSelect.firstChild) {
+        patternsSelect.removeChild(patternsSelect.firstChild);
+    }
     patternNames.forEach(shape => {
         var option = document.createElement('option');
         option.text = shape;
-        shapesSelect.add(option);
+        patternsSelect.add(option);
     });
 }
 
@@ -53,7 +55,7 @@ function draw(board) {
     });
 }
 
-function loadPattern(pattenr) {
+function loadPattern(pattern) {
     socket.emit('loadPattern', pattern);
 }
 
@@ -85,9 +87,10 @@ function onSimulationStarted() {
     document.getElementById('stopButton').disabled = false;
 }
 
-function onSimulationFinished() {
+function onSimulationFinished(lastNext) {
     document.getElementById('nextButton').disabled = false;
-    document.getElementById('stopButton').disabled = true;;
+    document.getElementById('stopButton').disabled = true;
+    document.getElementById('days').value = lastNext;
 }
 
 initGame();
