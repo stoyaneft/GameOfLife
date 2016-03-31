@@ -44,13 +44,34 @@ button:disabled {
     background-color: lightgray;
 }
 
-#canvas-container {
+#canvasContainer {
     background-color: black;
     padding: 10px;
     border: 3px solid lightgray;
-    width: 750px;
+    width: 800px;
     margin: 50px;
 }
+
+#gameCanvas {
+    width: 800px;
+    height: 800px;
+}
+
+#labels {
+    color: lightgreen;
+    margin: 5px;
+}
+
+#genText {
+    margin-bottom: 0;
+    float: right;
+}
+
+#popText {
+    float: right;
+}
+
+
 
 body {
     background: repeat-x white top;
@@ -59,7 +80,7 @@ body {
 }
 
 form {
-    margin-bottom: 20px;;
+    margin-bottom: 20px;
 }
 select {
     padding:3px;

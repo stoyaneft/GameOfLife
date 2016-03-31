@@ -4,7 +4,6 @@ const ctx = canvas.getContext('2d');
 const patternsSelect = document.getElementById('patterns');
 const sqrSize = 15;
 
-
 function initGame() {
     setEventHandlers();
     ctx.strokeStyle = 'gray';
@@ -62,6 +61,7 @@ function loadPattern(pattern) {
 }
 
 function restart() {
+    patternsSelect.selectedIndex = -1;
     socket.emit('clear');
 }
 
