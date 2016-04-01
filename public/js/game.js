@@ -76,7 +76,6 @@ function onMouseClick(event) {
     const rect = canvas.getBoundingClientRect();
     const y = Math.floor((event.clientX - rect.left) / sqrSize);
     const x = Math.floor((event.clientY - rect.top) / sqrSize);
-    console.log(x, y);
     socket.emit('cellChanged', {x, y});
 }
 

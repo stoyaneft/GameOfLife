@@ -111,7 +111,7 @@ function onCellChanged(data) {
 function onSimulationStopped() {
     clearInterval(intID);
     state.isInProcess = false;
-    io.emit('simulationFinished', lastNext);
+    io.emit('simulationFinished', state.days);
 }
 
 function loadLifeFiles() {

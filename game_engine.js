@@ -195,9 +195,3 @@ class Game {
 }
 
 module.exports = Game;
-//
-// let game = new Game(50);
-// game.loadPatternFile(__dirname + '/patterns/ggg.lif').then((name)=> {
-//     game.loadPattern(name);
-//     console.log(game.board);
-// });
