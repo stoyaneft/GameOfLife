@@ -126,18 +126,15 @@ class Game {
         }
         const topLeftX = pattern.topLeft[0];
         const topLeftY = pattern.topLeft[1];
-        console.log('x: ' + topLeftX + ' y: ' + topLeftY);
         const board = pattern.board;
         board.forEach((row, i) => {
             row.forEach((cell, j) => {
-                this._board[topLeftX + i][topLeftY + j] = cell;
-                console.log(topLeftX + i + ' ' + (topLeftY + j));
+                this._board[topLeftX + i - 2][topLeftY + j] = cell;
                 if (cell) {
                     this._population++;
                 }
             });
         });
-        console.log('Pattern ' + name);
     };
 
     loadPatternFile(filename) {
@@ -158,8 +155,8 @@ class Game {
                         if (line[0] === '#') {
                             const splitLine = line.split(' ');
                             if (line[1] === 'P') {
-                                topLeftX = centerX + parseInt(splitLine[2]);
-                                topLeftY = centerY + parseInt(splitLine[1]);
+                                topLeftX = centerX + parseInt(splitLine[1]);
+                                topLeftY = centerY + parseInt(splitLine[2]);
                                 topLeft = [topLeftX, topLeftY];
                             } else {
                                 const idx = line.indexOf('Name:');
@@ -198,3 +195,9 @@ class Game {
 }
 
 module.exports = Game;
+//
+// let game = new Game(50);
+// game.loadPatternFile(__dirname + '/patterns/ggg.lif').then((name)=> {
+//     game.loadPattern(name);
+//     console.log(game.board);
+// });

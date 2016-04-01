@@ -73,10 +73,8 @@ button:disabled {
 
 
 
-body {
-    background: repeat-x white top;
-    background-position-x: 100%;
-    background-position-y: 0;
+p {
+    font-size: 20px;
 }
 
 form {

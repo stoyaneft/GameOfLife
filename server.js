@@ -32,7 +32,7 @@ io.on('connection', onSocketConnection);
 loadLifeFiles();
 
 function onSocketConnection(client) {
-    console.log('client connected');
+    console.log('new client has connected');
     client.on('disconnect', onClientDisconnect);
     client.on('loadPattern', onLoadPattern);
     client.on('clear', onClear);
@@ -51,7 +51,6 @@ function onClientDisconnect() {
 function onLoadPattern(name) {
     game.restart();
     game.loadPattern(name);
-    console.log('Pattern ' + name + ' loaded');
     state.board = game.board;
     state.population = game.population;
     state.generation = game.generation;
@@ -61,7 +60,6 @@ function onLoadPattern(name) {
 
 function onClear() {
     game.restart();
-    console.log('board cleared');
     state.board = game.board;
     state.population = game.population;
     state.generation = game.generation;
@@ -75,7 +73,6 @@ function onSimulate(data) {
         state.speed = data.speed;
         state.days = data.days;
         state.isInProcess = true;
-        console.log(data);
         io.emit('simulationStarted');
         intID = setInterval(() => {
             game.simulate(1);
@@ -97,7 +94,6 @@ function onSimulate(data) {
 function onCellChanged(data) {
     const x = data.x, y = data.y;
     if (game.inBoard(x, y)) {
-        console.log('Cell changed at ' + data.x + ' ' + data.y);
         if (game.isAlive(x, y)) {
             game.removeAt(x, y);
         } else {
@@ -131,13 +127,12 @@ function loadLifeFiles() {
             });
             Promise.all(filePromises).then(patternNames => {
                 patterns = patternNames;
-                console.log(patterns);
                 io.emit('patternsLoaded', patterns);
             });
         });
     })
 }
 
-server.listen(8000, function(){
-    console.log('listening on *:8000');
+server.listen(8080, function(){
+    console.log('listening on *:8080');
 });
