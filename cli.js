@@ -2,6 +2,7 @@
 
 const CommandParser = require('./command_parser');
 const fs = require('fs');
+const os = require('os');
 const Game = require('./game_engine');
 const readLine = require('readline');
 let patterns = [];
@@ -50,7 +51,7 @@ function show() {
         row = row.join(' ');
         return row;
     });
-    console.log(boardStr.join('\n'));
+    console.log(boardStr.join(os.EOL));
 }
 
 function help() {
@@ -63,7 +64,7 @@ function help() {
         '- "simulate" <days> - simulates game state for <days>\n' +
         '- "load" <pattern> - loads <pattern>\n' +
         '- "list" - lists available patterns\n' +
-        '- "close" - closes the game\n');
+        '- "close" - closes the game' + os.EOL);
 }
 
 function clear() {
