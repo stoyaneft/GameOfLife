@@ -54,16 +54,16 @@ function show() {
 }
 
 function help() {
-    console.log('Welcome to Game of Life\'s console interface. The available commands are:\n>' +
-        '- "new" <size> - starts new game with board of size <size>\n>' +
-        '- "cell" <x> <y> - places new alive cell at [x, y]\n>' +
-        '- "show" - shows current state of the board\n>' +
-        '- "help" - shows list of available commands\n>' +
-        '- "clear" - clears game board\n>' +
-        '- "simulate" <days> - simulates game state for <days>\n>' +
+    console.log('Welcome to Game of Life\'s console interface. The available commands are:\n' +
+        '- "new" <size> - starts new game with board of size <size>\n' +
+        '- "cell" <x> <y> - places new alive cell at [x, y]\n' +
+        '- "show" - shows current state of the board\n' +
+        '- "help" - shows list of available commands\n' +
+        '- "clear" - clears game board\n' +
+        '- "simulate" <days> - simulates game state for <days>\n' +
         '- "load" <pattern> - loads <pattern>\n' +
         '- "list" - lists available patterns\n' +
-        '- "close" - closes the game\n>');
+        '- "close" - closes the game\n');
 }
 
 function clear() {
@@ -71,11 +71,14 @@ function clear() {
 }
 
 function simulate(days) {
+    days = parseInt(days);
     game.simulate(days);
     show();
 }
 
 function load(pattern) {
+    const args = [].slice.apply(arguments);
+    pattern = args.join(' ');
     try {
         game.loadPattern(pattern);
         show();
