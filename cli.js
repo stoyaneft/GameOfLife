@@ -5,7 +5,7 @@ const fs = require('fs');
 const os = require('os');
 const Game = require('./game_engine');
 const readLine = require('readline');
-let patterns = [];
+let patterns = new Map();
 
 let game;
 const rl = readLine.createInterface(process.stdin,process.stdout);
@@ -26,9 +26,6 @@ function createCommandParser() {
 
 function newGame(size) {
     game = new Game(parseInt(size));
-    loadLifeFiles().then((res) => {
-        patterns = res;
-    });
     show();
 }
 
@@ -64,7 +61,7 @@ function help() {
         '- "simulate" <days> - simulates game state for <days>\n' +
         '- "load" <pattern> - loads <pattern>\n' +
         '- "list" - lists available patterns\n' +
-        '- "close" - closes the game' + os.EOL);
+        '- "close" - closes the game\n');
 }
 
 function clear() {
@@ -77,26 +74,23 @@ function simulate(days) {
     show();
 }
 
-function load(pattern) {
-    const args = [].slice.apply(arguments);
-    pattern = args.join(' ');
-    try {
-        game.loadPattern(pattern);
-        show();
-    } catch(e) {
-        if(e.message === `No pattern: ${pattern}`) {
-            console.log(e.message);
-            console.log('Enter "list" to see list of available patterns');
-        } else {
-            throw e;
-        }
+function load(patternName) {
+    const args = Array.from(arguments);
+    patternName = args.join(' ');
+    const patternFile = patterns.get(patternName);
+    if (!patternFile) {
+        console.log(`No pattern: ${patternName}`);
+        console.log('Enter "list" to see list of available patterns');
+    } else {
+        game.loadPatternFile(patternFile).then(show);
     }
 }
 
+
 function list() {
     console.log('Available patterns:');
-    patterns.forEach((pattern) => {
-        console.log('- ' + pattern);
+    patterns.forEach((_, name) => {
+        console.log('- ' + name);
     })
 }
 
@@ -106,20 +100,23 @@ function loadLifeFiles() {
             if (err) {
                 reject(err);
             }
-            const filePromises = [];
+            const namePromises = [];
             filenames.forEach((filename) => {
-                const pattern = game.loadPatternFile('patterns/' + filename);
-                filePromises.push(pattern);
+                const namePromise = Game.parsePatternName(__dirname + '/patterns/' + filename);
+                namePromises.push(namePromise);
             });
-            Promise.all(filePromises).then(patternNames => {
-                resolve(patternNames);
-            });
+            Promise.all(namePromises).then((resPatterns) => {
+                resPatterns.forEach((pattern) => {
+                    patterns.set(pattern.name, pattern.filename);
+                });
+                resolve();
+            }, reject);
         });
-
     })
 }
 
 function prompt(parser) {
+    rl.message = '>';
     rl.prompt();
     help();
 
@@ -138,11 +135,10 @@ function prompt(parser) {
 }
 
 function startGame() {
+    loadLifeFiles();
     const parser = createCommandParser();
     prompt(parser);
 }
 
 startGame();
-
-
 

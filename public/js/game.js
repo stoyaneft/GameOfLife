@@ -22,10 +22,10 @@ function onPatternsLoaded(patternNames) {
     while (patternsSelect.firstChild) {
         patternsSelect.removeChild(patternsSelect.firstChild);
     }
-    patternNames.forEach((shape) => {
-        var option = document.createElement('option');
-        option.text = shape;
-        option.value = shape;
+    patternNames.forEach((name) => {
+        option = document.createElement('option');
+        option.text = name;
+        option.value = name;
         patternsSelect.add(option);
     });
 }
@@ -44,7 +44,6 @@ function onStateChanged(state) {
 
 function draw(board) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    console.log(canvas.width, canvas.height);
     board.forEach(function(row, x) {
         row.forEach(function(cell, y) {
             ctx.beginPath();

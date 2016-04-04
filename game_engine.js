@@ -10,7 +10,6 @@ class Game {
         this._generation = 0;
         this._population = 0;
         this._board = this.getNewBoard();
-        this._patterns = new Map();
     }
 
     get size() {
@@ -120,65 +119,60 @@ class Game {
         return nextBoard;
     }
 
-    loadPattern(name) {
-        const pattern = this._patterns.get(name);
-        if (!pattern) {
-            throw new Error(`No pattern: ${name}`);
-        }
-        const topLeftX = pattern.topLeft[0];
-        const topLeftY = pattern.topLeft[1];
-        const board = pattern.board;
-        board.forEach((row, i) => {
-            row.forEach((cell, j) => {
-                this._board[topLeftX + i - 2][topLeftY + j] = cell;
-                if (cell) {
-                    this._population++;
-                }
-            });
-        });
-    };
-
-    loadPatternFile(filename) {
+    static parsePatternName(filename) {
         return new Promise((resolve, reject) => {
             fs.readFile(filename, (err, data) => {
                 if (err) {
                     reject(err);
                 } else {
-                    let board = [], topLeft, name;
-                    data = data.toString();
-                    const lines = data.split(os.EOL).filter((line) => {
-                        return line[0] != '#' || line[1] === 'P' || line.indexOf('Name:') > -1;
+                    const searched = 'Name:';
+                    data = data.toString().split(os.EOL);
+                    const nameLine = data.filter((line) => {
+                        return line.indexOf(searched) > -1;
                     });
-                    const centerX = Math.floor(this._size / 2), centerY = Math.floor(this._size / 2);
-                    let topLeftX = centerX, topLeftY = centerY;
-                    lines.forEach((line) => {
-                        const row = [];
-                        if (line[0] === '#') {
-                            const splitLine = line.split(' ');
-                            if (line[1] === 'P') {
+                    const nameIdx = nameLine[0].indexOf(searched);
+                    const name = nameLine[0].slice(nameIdx + searched.length + 1);
+                    resolve({filename, name});
+                }
+            });
+        });
+    }
+
+    loadPatternFile(filename) {
+        return new Promise((resolve, reject) => {
+            Game.parsePatternName(filename).then((name) => {
+                fs.readFile(filename, (err, data) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        data = data.toString();
+                        const lines = data.split(os.EOL).filter((line) => {
+                            return line[0] != '#' || line[1] === 'P';
+                        });
+                        const centerX = Math.floor(this._size / 2), centerY = Math.floor(this._size / 2);
+                        let topLeftX = centerX, topLeftY = centerY;
+                        lines.forEach((line, i) => {
+                            if (line[0] === '#') {
+                                const splitLine = line.split(' ');
                                 topLeftX = centerX + parseInt(splitLine[1]);
                                 topLeftY = centerY + parseInt(splitLine[2]);
-                                topLeft = [topLeftX, topLeftY];
                             } else {
-                                const idx = line.indexOf('Name:');
-                                name = line.slice(idx + 6);
+                                line = line.split('');
+                                line.forEach((char, j) => {
+                                    if (char === '*') {
+                                        this._board[topLeftX + i - 1][topLeftY + j] = 1;
+                                        this._population++;
+                                    } else {
+                                        this._board[topLeftX + i - 1][topLeftY + j] = 0;
+                                    }
+                                })
                             }
-                        } else {
-                            line = line.split('');
-                            line.forEach((char) => {
-                                if (char === '*') {
-                                    row.push(1);
-                                } else {
-                                    row.push(0);
-                                }
-                            })
-                        }
-                        board.push(row);
-                    });
-                    this._patterns.set(name, {board, topLeft});
-                    resolve(name);
-                }
-            })
+                        });
+                        resolve();
+                    }
+                })
+            });
+
         });
 
     }
@@ -196,3 +190,11 @@ class Game {
 }
 
 module.exports = Game;
+
+let game = new Game();
+game.loadPatternFile(__dirname + '/patterns/pulsr.lif').then((name) => {
+    console.log(name);
+    console.log(game.board);
+}).catch((err) => {
+    console.log(err);
+});
