@@ -34,6 +34,7 @@ function onStateChanged(state) {
     draw(state.board);
     document.getElementById('days').value = state.days;
     document.getElementById('speed').value = state.speed;
+    document.getElementById('speed').disabled = state.isInProcess;
     document.getElementById('nextButton').disabled = state.isInProcess;
     document.getElementById('stopButton').disabled = !state.isInProcess;
     document.getElementById('generationCount').innerText = state.generation;
@@ -87,11 +88,13 @@ function stopSimulation() {
 function onSimulationStarted() {
     document.getElementById('nextButton').disabled = true;
     document.getElementById('stopButton').disabled = false;
+    document.getElementById('speed').disabled = true;
 }
 
 function onSimulationFinished(lastNext) {
     document.getElementById('nextButton').disabled = false;
     document.getElementById('stopButton').disabled = true;
+    document.getElementById('speed').disabled = false;
     document.getElementById('days').value = lastNext;
 }
 
