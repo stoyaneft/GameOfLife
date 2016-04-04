@@ -43,6 +43,7 @@ function onStateChanged(state) {
 
 function draw(board) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    console.log(canvas.width, canvas.height);
     board.forEach(function(row, x) {
         row.forEach(function(cell, y) {
             ctx.beginPath();

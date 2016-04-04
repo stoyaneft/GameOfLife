@@ -52,11 +52,6 @@ button:disabled {
     margin: 50px;
 }
 
-#gameCanvas {
-    width: 800px;
-    height: 800px;
-}
-
 #labels {
     color: lightgreen;
     margin: 5px;

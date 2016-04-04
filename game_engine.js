@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const os = require('os');
 
 class Game {
 
@@ -145,7 +146,7 @@ class Game {
                 } else {
                     let board = [], topLeft, name;
                     data = data.toString();
-                    const lines = data.split('\r\n').filter((line) => {
+                    const lines = data.split(os.EOL).filter((line) => {
                         return line[0] != '#' || line[1] === 'P' || line.indexOf('Name:') > -1;
                     });
                     const centerX = Math.floor(this._size / 2), centerY = Math.floor(this._size / 2);
