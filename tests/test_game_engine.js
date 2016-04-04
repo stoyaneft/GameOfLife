@@ -8,6 +8,7 @@ let fs = require('fs');
 
 describe('Game', () => {
     let game;
+    const dir = __dirname + '/../patterns/';
 
     beforeEach(next => {
         game = new Game();
@@ -16,7 +17,8 @@ describe('Game', () => {
 
     describe('#restart()', () => {
        it('should restart game', () => {
-           game.loadPatternFile('glider.lif').then(() => {
+           const filePromise = game.loadPatternFile(dir + 'glider.lif');
+           return filePromise.then(() => {
                game.restart();
                const emptyBoard = game.getNewBoard();
                expect(game.board).to.eql(emptyBoard)
@@ -56,20 +58,21 @@ describe('Game', () => {
 
     describe('#loadPatternFile(name)', () => {
         it('should load pattern from file with the given name', () => {
-            game.loadPatternFile('10 Cell Row').then(() => {
+            const filePromise = game.loadPatternFile(dir + 'tenCellRow.lif');
+            return filePromise.then(() => {
                 const expectedBoard = game.getNewBoard();
-                for (let i = game.size/2 - 5; i < game.size/2 + 5; i++) {
-                    expectedBoard[game.size/2][i] = 1;
+                for (let i = game.size / 2 - 5; i < game.size / 2 + 5; i++) {
+                    expectedBoard[game.size / 2][i] = 1;
                 }
                 expect(game.board).to.eql(expectedBoard);
             });
-        })
+        });
     });
 
     describe('#getNeighboursOf(x, y)', () => {
         it('should calculate neighbours of cell [x, y]', () => {
-            game.loadPatternFile('glider.lif').then(() => {
-                const pattern = game._patterns.get('10 Cell Row');
+            const filePromise = game.loadPatternFile(dir + 'glider.lif');
+            return filePromise.then(() => {
                 const n1 = game.getNeighboursOf(game.size/2 + 1, game.size/2);
                 expect(n1).to.equal(3);
                 const n2 = game.getNeighboursOf(game.size/2, game.size/2);
@@ -82,8 +85,9 @@ describe('Game', () => {
 
     describe('#_calcNextState(x, y)', () => {
         it('should calculate next state for cell [x, y]', () => {
-            game.loadPatternFile('10 Cell Row').then(() => {
-                const x = game.size/2, y = game.size/2 - 1;
+            const filePromise = game.loadPatternFile(dir + 'tenCellRow.lif');
+            return filePromise.then(() => {
+                const x = game.size/2, y = game.size/2 - 5;
                 const first = game._calcNextState(x, y);
                 const second = game._calcNextState(x, y + 1);
                 expect(first).to.equal(0);
@@ -94,10 +98,11 @@ describe('Game', () => {
 
     describe('#_calcNextBoard()', () => {
         it('should calculate board state after one day', () => {
-            game.loadPatternFile('tenCellRow.lif').then(() => {
+            const filePromise = game.loadPatternFile(dir + 'tenCellRow.lif');
+            return filePromise.then(() => {
                 const nextBoard = game._calcNextBoard();
                 let expectedBoard = game.getNewBoard();
-                const x = game.size/2, y = game.size/2 + 5;
+                const x = game.size/2, y = game.size/2 - 5;
                 expectedBoard.forEach((row, i) => {
                     row.forEach((cell, j) => {
                         if (i >= x - 1 && i <= x + 1 && j >= y + 1 && j <= y + 8)
@@ -113,9 +118,9 @@ describe('Game', () => {
     describe('#simulate(days)', () => {
        it('should simulate board state after several days', () => {
            const x = game.size/2, y = game.size / 2 - 5;
-           game.loadPatternFile('tenCellRow.lif').then(() => {
+           const filePromise = game.loadPatternFile(dir + 'tenCellRow.lif');
+           return filePromise.then(() => {
                game.simulate(61);
-               console.log(game.board);
                let expectedBoard = game.getNewBoard();
                expectedBoard.forEach((row, i) => {
                    row.forEach((cell, j) => {
@@ -125,8 +130,7 @@ describe('Game', () => {
                });
                expectedBoard[x][y + 2] = 0;
                expectedBoard[x][y + 7] = 0;
-               console.log(game.board);
-               expect(game.board).to.eql(2);
+               expect(game.board).to.eql(expectedBoard);
                expect(game.generation).to.equal(61);
                expect(game.population).to.equal(22);
            });
