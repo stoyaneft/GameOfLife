@@ -83,9 +83,7 @@ function load(patternName) {
         console.log(`No pattern: ${patternName}`);
         console.log('Enter "list" to see list of available patterns');
     } else {
-        game.loadPatternFile(patternFile).then(show).catch((err) => {
-            console.log(err);
-            })
+        game.loadPatternFile(patternFile).then(show).catch(console.log);
     }
 }
 
