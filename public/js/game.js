@@ -23,7 +23,7 @@ function onPatternsLoaded(patternNames) {
         patternsSelect.removeChild(patternsSelect.firstChild);
     }
     patternNames.forEach((name) => {
-        option = document.createElement('option');
+        const option = document.createElement('option');
         option.text = name;
         option.value = name;
         patternsSelect.add(option);
