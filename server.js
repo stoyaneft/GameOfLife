@@ -1,13 +1,13 @@
 'use strict';
 
 const express = require('express');
-const fs = require('fs');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const Game = require('./game_engine');
+const loadLifeFiles = require('./helpers');
 
-const patterns = new Map();
+let patterns = new Map();
 
 app.use(express.static('public'));
 
@@ -18,31 +18,11 @@ app.get('/', (req, res) =>{
 
 io.on('connection', onSocketConnection);
 
-loadLifeFiles().then(() => {
+loadLifeFiles().then((data) => {
+    patterns = data;
+    io.emit('patternsLoaded', patterns);
     console.log('Patterns loaded');
 });
-
-function loadLifeFiles() {
-    return new Promise((resolve, reject) => {
-        fs.readdir(__dirname + '/patterns', (err, filenames) => {
-            if (err) {
-                reject(err);
-            }
-            const namePromises = [];
-            filenames.forEach((filename) => {
-                const namePromise = Game.parsePatternName(__dirname + '/patterns/' + filename);
-                namePromises.push(namePromise);
-        });
-            Promise.all(namePromises).then((resPatterns) => {
-                resPatterns.forEach((pattern) => {
-                    patterns.set(pattern.name, pattern.filename);
-                });
-                io.emit('patternsLoaded', patterns);
-                resolve();
-            }, reject);
-        });
-    })
-}
 
 function onSocketConnection(client) {
     const game = new Game(50);

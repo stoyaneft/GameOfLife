@@ -1,8 +1,8 @@
 'use strict';
 
 const CommandParser = require('./command_parser');
-const fs = require('fs');
 const os = require('os');
+const loadLifeFiles = require('./helpers');
 const Game = require('./game_engine');
 const readLine = require('readline');
 let patterns = new Map();
@@ -94,27 +94,6 @@ function list() {
     })
 }
 
-function loadLifeFiles() {
-    return new Promise((resolve, reject) => {
-        fs.readdir(__dirname + '/patterns', (err, filenames) => {
-            if (err) {
-                reject(err);
-            }
-            const namePromises = [];
-            filenames.forEach((filename) => {
-                const namePromise = Game.parsePatternName(__dirname + '/patterns/' + filename);
-                namePromises.push(namePromise);
-            });
-            Promise.all(namePromises).then((resPatterns) => {
-                resPatterns.forEach((pattern) => {
-                    patterns.set(pattern.name, pattern.filename);
-                });
-                resolve();
-            }, reject);
-        });
-    })
-}
-
 function prompt(parser) {
     rl.message = '>';
     rl.prompt();
@@ -135,7 +114,9 @@ function prompt(parser) {
 }
 
 function startGame() {
-    loadLifeFiles();
+    loadLifeFiles().then((data) => {
+        patterns = data;
+    });
     const parser = createCommandParser();
     prompt(parser);
 }
