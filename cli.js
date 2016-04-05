@@ -75,6 +75,7 @@ function simulate(days) {
 }
 
 function load(patternName) {
+    game.restart();
     const args = Array.from(arguments);
     patternName = args.join(' ');
     const patternFile = patterns.get(patternName);
@@ -82,10 +83,11 @@ function load(patternName) {
         console.log(`No pattern: ${patternName}`);
         console.log('Enter "list" to see list of available patterns');
     } else {
-        game.loadPatternFile(patternFile).then(show);
+        game.loadPatternFile(patternFile).then(show).catch((err) => {
+            console.log(err);
+            })
     }
 }
-
 
 function list() {
     console.log('Available patterns:');

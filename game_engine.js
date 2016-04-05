@@ -140,37 +140,42 @@ class Game {
 
     loadPatternFile(filename) {
         return new Promise((resolve, reject) => {
-            Game.parsePatternName(filename).then((name) => {
-                fs.readFile(filename, (err, data) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        data = data.toString();
-                        const lines = data.split(os.EOL).filter((line) => {
-                            return line[0] != '#' || line[1] === 'P';
-                        });
-                        const centerX = Math.floor(this._size / 2), centerY = Math.floor(this._size / 2);
-                        let topLeftX = centerX, topLeftY = centerY;
-                        lines.forEach((line, i) => {
-                            if (line[0] === '#') {
-                                const splitLine = line.split(' ');
-                                topLeftX = centerX + parseInt(splitLine[1]);
-                                topLeftY = centerY + parseInt(splitLine[2]);
-                            } else {
-                                line = line.split('');
-                                line.forEach((char, j) => {
+            fs.readFile(filename, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    data = data.toString();
+                    const lines = data.split(os.EOL).filter((line) => {
+                        return line[0] != '#' || line[1] === 'P';
+                    });
+                    const centerX = Math.floor(this._size / 2), centerY = Math.floor(this._size / 2);
+                    let topLeftX = centerX, topLeftY = centerY;
+                    lines.forEach((line, i) => {
+                        if (line[0] === '#') {
+                            const splitLine = line.split(' ');
+                            topLeftX = centerX + parseInt(splitLine[1]);
+                            topLeftY = centerY + parseInt(splitLine[2]);
+                        } else {
+                            line = line.split('');
+                            line.forEach((char, j) => {
+                                const x = topLeftX + i - 1;
+                                const y = topLeftY + j;
+                                if (this.inBoard(x, y)) {
                                     if (char === '*') {
-                                        this._board[topLeftX + i - 1][topLeftY + j] = 1;
+                                        this._board[x][y] = 1;
                                         this._population++;
                                     } else {
-                                        this._board[topLeftX + i - 1][topLeftY + j] = 0;
+                                        this._board[x][y] = 0;
                                     }
-                                })
-                            }
-                        });
-                        resolve();
-                    }
-                })
+                                } else {
+                                    this.restart();
+                                    reject('Pattern does not fit board');
+                                }
+                            })
+                        }
+                    });
+                    resolve();
+                }
             });
 
         });
@@ -190,11 +195,3 @@ class Game {
 }
 
 module.exports = Game;
-
-let game = new Game();
-game.loadPatternFile(__dirname + '/patterns/pulsr.lif').then((name) => {
-    console.log(name);
-    console.log(game.board);
-}).catch((err) => {
-    console.log(err);
-});
