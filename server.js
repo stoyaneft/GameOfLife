@@ -18,7 +18,7 @@ app.get('/', (req, res) =>{
 
 io.on('connection', onSocketConnection);
 
-loadLifeFiles().then((data) => {
+loadLifeFiles(__dirname + '/patterns').then((data) => {
     patterns = data;
     io.emit('patternsLoaded', patterns);
     console.log('Patterns loaded');

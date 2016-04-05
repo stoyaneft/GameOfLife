@@ -114,7 +114,7 @@ function prompt(parser) {
 }
 
 function startGame() {
-    loadLifeFiles().then((data) => {
+    loadLifeFiles(__dirname + '/patterns').then((data) => {
         patterns = data;
     });
     const parser = createCommandParser();

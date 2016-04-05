@@ -1,9 +1,9 @@
 const fs = require('fs');
 const Game = require('./game_engine');
 
-function loadLifeFiles() {
+function loadLifeFiles(dir) {
     return new Promise((resolve, reject) => {
-        fs.readdir(__dirname + '/patterns', (err, filenames) => {
+        fs.readdir(dir, (err, filenames) => {
             if (err) {
                 reject(err);
             }
